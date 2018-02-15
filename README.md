@@ -2,7 +2,7 @@
 
 More documentation tags in Clojure metadata.
 
-[Check out example result in Codox](https://generateme.github.io/metadoc/metadoc.example.html)
+[Check out generated doc](https://generateme.github.io/metadoc/metadoc.example.html)
 
 ## Documentation
 
@@ -14,7 +14,7 @@ Add following dependency to your project
 
 `[metadoc "0.0.1-SNAPSHOT"]`
 
-To generate `Codox` docs, add also latest `Codox` dependency and configure it to use `metadoc` writer.
+To generate `codox` docs, add also latest `codox` dependency and configure it to use `metadoc` writer.
 
 ```
 :codox {:writer metadoc.writers.codox/write-docs}
@@ -36,7 +36,7 @@ Includes integration with Codox (via custom writer). But is not limited to other
    * :examples - list of examples, which are created by various `(example...)` macros
    * :categories - set of categories as tags, string, etc.. `#{:category1 :category2}`
 2. If you need code snippet for your examples, create anywhere in your code using `(defsnippet...)` macro
-3. Run doc generation (only `Codox` currently)
+3. Run doc generation (only `codox` currently)
 
 Internally examples are just maps of data with formatted code, nothing is really evaluated. All things happen during doc creation:
 
@@ -87,11 +87,12 @@ There are several types of examples. Lets start with basic one:
 
 ```
 (defsnippet my-snippet
-  "Register snippet function which calls passed example code."
+  "Register snippet function which calls passed example code (as f)."
   (f 1 2))
 
 (example-snippet "Run following code with snippet" my-snippet (fn [x y] (* x y)))
-(example-snippet "Run following code with snippet, and treat result as image example" my-snippet :image (fn [x y] (str x "/" y ".png"))
+(example-snippet "Run following code with snippet, and treat result as image example"
+   my-snippet :image (fn [x y] (str x "/" y ".png"))
 ```
 
 ## How to use - enhancing and integration

@@ -24,7 +24,7 @@ To generate `codox` docs, add also latest `codox` dependency and configure it to
 
 Additional metadata tags macros and tooling to enhance `:doc` documentation for your code. Including:
 
-* Examples - add pure code snippets illustrating your functions. Simple examples can also be tests.
+* Unit examples - add pure code snippets illustrating your functions. Simple examples can also be tests.
 * Categorization - group your functions in categories (many to many)
 * Constants - show all constants in one block, show also values.
 
@@ -58,7 +58,7 @@ First of all:
 
 ### Examples
 
-Every var in your code can be illustrated by examples. Example can be code, url, image or any text with description. Documentation tools will be able to extract, evaluate and render them.
+Every var in your code can be illustrated by unit examples. Example can be code, url, image or any text with description. Documentation tools will be able to extract, evaluate and render them.
 
 There are several types of examples. Lets start with basic one:
 

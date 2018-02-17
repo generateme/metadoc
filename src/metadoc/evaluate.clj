@@ -15,6 +15,13 @@
 
 (defmethod evaluate :default [ex] (assoc ex :result (:example ex)))
 
+(defn- maybe-format-result
+  "Format result for some specific types."
+  [res]
+  (if (coll? res)
+    (format-form res)
+    res))
+
 (defn- eval-example-fn
   ""
   [{:keys [example-fn]}]
@@ -44,22 +51,30 @@
                                      [:blockquote (:doc r)]
                                      [:pre (:result r)]])
 
+(defn- add-comment
+  ""
+  [s]
+  (->> (str s)
+       (s/split-lines)
+       (map #(str ";;=> " %))
+       (s/join new-line)))
+
 (defn make-code-line
   [example evaluated? result]
   (str example
        (when evaluated?
-         (str new-line ";; => " result))))
+         (str new-line (add-comment (maybe-format-result result))))))
 
 (defn test-result
   [{:keys [test-value test]}]
   (if test
-    "Test: ok."
-    (str "Test: failed, expected value: " test-value ".")))
+    ";; Test: ok."
+    (str ";; Test: failed, expected value: " test-value ".")))
 
 (defmethod format-html :simple [r]
   (html [:div
          [:blockquote (:doc r)] 
-         [:pre [:code (make-code-line (:example r) (:example-fn r) (:result r)) 
+         [:pre [:code {:class "hljs clojure"} (make-code-line (:example r) (:example-fn r) (:result r)) 
                 (when (:tested r) [:small new-line new-line (test-result r)])]]]))
 
 (defmethod format-html :snippet [r]
@@ -68,8 +83,9 @@
 (defmethod format-html :session [r]
   (html [:div
          [:blockquote (:doc r)]
-         [:pre [:code (s/join new-line (for [[ex res] (map vector (:example r) (or (:result r) (repeatedly (constantly nil))))]
-                                         (make-code-line ex (:example-fn r) res)))]]]))
+         [:pre [:code {:class "hljs clojure"}
+                (s/join new-line (for [[ex res] (map vector (:example r) (or (:result r) (repeatedly (constantly nil))))]
+                                   (make-code-line ex (:example-fn r) res)))]]]))
 
 (defmethod format-html :image [r] (html [:div
                                          [:blockquote (:doc r)]

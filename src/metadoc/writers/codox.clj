@@ -457,7 +457,7 @@
 (defn- snippets-part 
   [project namespace]
   (when-not (contains? project :snippets)
-    (when-let [snippets (:snippets namespace)]
+    (when-let [snippets (seq (filter (comp not :hidden) (:snippets namespace)))]
       [:div.markdown
        [:h4 "Code snippets"]
        (for [{:keys [doc fn-str]} (vals snippets)]
@@ -469,7 +469,6 @@
   [project namespace categories n]
   (interpose " " (for [v (sort (n categories))]
                    [:a {:href (find-wikilink project namespace (str v))} v])))
-
 
 (defn- categories-part 
   [project namespace]

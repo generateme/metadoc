@@ -10,7 +10,7 @@
   * Categorization"
   {:categories {:inc "With examples"
                 :notinc "Without examples"}}
-  (:require [metadoc.core :refer :all]
+  (:require [metadoc.examples :refer :all]
             [clojure.java.io :as io])
   (:import [java.awt Color]
            [java.awt.image BufferedImage]

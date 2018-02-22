@@ -1,6 +1,6 @@
-(ns metadoc.core-test
+(ns metadoc.examples-test
   (:require [clojure.test :refer :all]
-            [metadoc.core :refer :all]))
+            [metadoc.examples :refer :all]))
 
 (deftest example-test
   (let [ex (example "Regular example" (+ 1 2 3))
@@ -42,7 +42,7 @@
     (is (= "a.jpg" (:example ex-img)))
     (is (= :url (:type ex-url)))
     (is (string? (:example ex-img)))
-    (is (= :anything (:type (example-any-url "Anything" :anything "abc"))))))
+    (is (= :anything (:type (example-any-val "Anything" :anything "abc"))))))
 
 (add-examples snippet-fn
   (example "Add something" (* 2 3)))

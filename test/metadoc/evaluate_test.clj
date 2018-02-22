@@ -1,6 +1,6 @@
 (ns metadoc.evaluate-test
   (:require [metadoc.evaluate :refer :all]
-            [metadoc.core :refer :all]
+            [metadoc.examples :refer :all]
             [clojure.test :refer :all]))
 
 (deftest example-evaluate-test

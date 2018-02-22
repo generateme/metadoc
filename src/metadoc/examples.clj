@@ -1,4 +1,4 @@
-(ns metadoc.core
+(ns metadoc.examples
   "Attach unit examples to your vars.
 
   Unit examples are small executable code snippets, images, urls or any data which can illustrate usage of your functions.

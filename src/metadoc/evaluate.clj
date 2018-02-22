@@ -1,7 +1,7 @@
 (ns metadoc.evaluate
   "This is dumb test doc."
   {:categories {:test-cat "This is cat name!"}}
-  (:require [metadoc.core :refer :all]
+  (:require [metadoc.examples :refer :all]
             [clojure.test :as test]
             [hiccup.core :refer :all]
             [hiccup.element :refer :all]

@@ -1,4 +1,4 @@
-(ns metadoc.example
+(ns example.example
   "This namespace includes all features exposed by `metadoc` library.
 
   What's in:

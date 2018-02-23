@@ -33,6 +33,11 @@
 
   Or call [[add-examples]] macro, pass variable name and examples.
 
+  ```
+  (add-examples some-function
+    (example \"Another example\" (some-function 1 2 3)))
+  ```
+  
   #### Snippets
 
   Sometimes you want to show your example as simple function which should be evaluated by other, more complicated code. Eg. you want to generate some math function plots, calculate something or process data. And you want to reuse such code several times. 

@@ -1,12 +1,12 @@
 # metadoc
 
-More documentation tags in Clojure metadata.
+Documentation tags in Clojure metadata.
 
 [Check out generated doc](https://generateme.github.io/metadoc/metadoc.example.html)
 
 ## Documentation
 
-* [API doc - not finished](https://generateme.github.io/metadoc/)
+* [API doc](https://generateme.github.io/metadoc/)
 
 ## Usage
 
@@ -32,70 +32,15 @@ Includes integration with Codox (via custom writer). But is not limited to other
 
 ### How does it work?
 
-1. Write your functions with additional metadata tags
-   * :examples - list of examples, which are created by various `(example...)` macros
-   * :categories - set of categories as tags, string, etc.. `#{:category1 :category2}`
-2. If you need code snippet for your examples, create anywhere in your code using `(defsnippet...)` macro
-3. Run doc generation (only `codox` currently)
+#### Adding examples
 
-Internally examples are just maps of data with formatted code, nothing is really evaluated. All things happen during doc creation:
+See [doc](https://generateme.github.io/metadoc/metadoc.examples.html)
 
-* examples are evaluated and result is stored
-* if examples are marked as tests, tests are executed
-* snippets, examples, constants with values, categories are collected and passed to doc tooling
-* doc tool does the rest (html rendering or whatever)
+#### Adding categorization
 
-Process looks like: metadata -> evaluation -> data collection -> rendering
+Add `:categories` metatag to:
 
-Every step is quite simple and extensible.
-
-## How to use - user perspective
-
-First of all:
-
-- setup `metadoc` and `codox` (Usage, above)
-- require `metadoc.core` namespace
-
-### Examples
-
-Every var in your code can be illustrated by unit examples. Example can be code, url, image or any text with description. Documentation tools will be able to extract, evaluate and render them.
-
-There are several types of examples. Lets start with basic one:
-
-#### Simple
-
-```
-(example "Only one form." (+ 1 2 3 4)
-(example "Only one form, do not evaluate, run test." {:evaluate? false :test-value 10} (+ 1 2 3 4))
-```
-
-#### Session
-
-```
-(example-session "List of forms." (+ 1 2) (let [x 11] x) (call-something 1 2 3))
-(example-session "List of forms, no evaluation." false (+ 1 2) (let [x 11] x) (call-something 1 2 3))
-```
-
-#### Image/Url
-
-```
-(example-url "Add url" "http://clojure.org")
-(example-image "Image url" "docs/image.png")
-```
-
-#### Snippet
-
-```
-(defsnippet my-snippet
-  "Register snippet function which calls passed example code (as f)."
-  (f 1 2))
-
-(example-snippet "Run following code with snippet" my-snippet (fn [x y] (* x y)))
-(example-snippet "Run following code with snippet, and treat result as image example"
-   my-snippet :image (fn [x y] (str x "/" y ".png"))
-```
-
-## How to use - enhancing and integration
-
+* variable - containing list/set of categories as keys. Eg. `{:categories #{:cat1 :cat2}}`
+* (optional) namespace - containing map with translation category key to name. Eg. `{:categories {:cat1 "First category" :cat2 "Second"}}`
 
 

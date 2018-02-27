@@ -15,7 +15,8 @@
             [net.cgrand.enlive-html :as enlive-html]
             [net.cgrand.jsoup :as jsoup]
             [codox.utils :as util]
-            [metadoc.evaluate :as ex]))
+            [metadoc.examples :as ex]
+            [metadoc.reader :as er]))
 
 (def ^:private escape-map {(char 0xffff) "\\0xffff"
                            (char 13) "\\r"
@@ -427,7 +428,7 @@
       (for [form (var-usage var)]
         [:code (h (pr-str form))])]
      (when constant-value
-       [:div.markdown [:code ";;=> " (escape-value constant-value)]])
+       [:div [:div.markdown [:code {:class "hljs clojure"} ";;=> " (escape-value constant-value)]]])
      [:div.doc (format-docstring project namespace var)]
      (when examples
        [:div.markdown
@@ -578,9 +579,9 @@
          (map #(let [ns (find-ns (:name %))
                      ma (partial maybe-assoc project ns)]
                  (as-> % n
-                   (ma n :constants :constants ex/extract-constants)
-                   (ma n :examples :examples ex/extract-examples)
-                   (ma n :categories :categories-list ex/extract-categories)))
+                   (ma n :constants :constants er/extract-constants)
+                   (ma n :examples :examples er/extract-examples)
+                   (ma n :categories :categories-list er/extract-categories)))
               (:namespaces project))))
 
 (defn write-docs

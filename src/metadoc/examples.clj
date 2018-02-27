@@ -3,14 +3,16 @@
 
   Unit examples are small executable code snippets, images, urls or any data which can illustrate usage of your functions.
   Term \"unit\" means that example should be connected directly to given function.
+
+  ### Usage
   
   There are several types of examples (macro - type - description):
 
   * [[example]] - `:simple` - simple executable code, can be converted to test
-  * [[example-session]] - `:session` - list of executable code
-  * [[example-image]] - `:image` - url to image
-  * [[example-url]] - `:url` - just url
-  * [[example-snippet]] - `:snippet` - define function which is passed to snippet. Result of snippet call is result of evaluating example. Result can be interpreted as other example type. See below for concrete snippet call. Snippets are created with [[defsnippet]] macro.
+  * [[example-session]] - `:session` - list of executable code lines
+  * [[example-image]] - `:image` - image url
+  * [[example-url]] - `:url` - just any url
+  * [[example-snippet]] - `:snippet` - define function which is passed to snippet. Result of snippet call is result of such example. Result can be interpreted as other example type. See below for concrete snippet call. Snippets are created with [[defsnippet]] macro.
 
   Example is just a map with following fields:
 
@@ -40,7 +42,7 @@
   
   #### Snippets
 
-  Sometimes you want to show your example as simple function which should be evaluated by other, more complicated code. Eg. you want to generate some math function plots, calculate something or process data. And you want to reuse such code several times. 
+  Sometimes you want to show your example as simple function which should be evaluated by other, more complicated code. Eg. you want to generate some math function plots, calculate something or process data. And you want to reuse such code several times in you example. 
 
   ```
   (defsnippet my-snippet \"Description\" (f 1 2))
@@ -55,10 +57,34 @@
 
   * Each example code is wrapped in the function which has an access to `md5-hash` value. It's a hash of formatted example string.
   * Snippet can be marked as `:hidden` if you don't want to show it in documentation.
-  * Result of snippet can be changed to other example type, this way you can easily convert result to image or url."
+  * Result of snippet can be changed to other example type, this way you can easily convert result to image or url.
+
+  ### Evaluation
+
+  Evaluate given example based on type.
+
+  [[evaluate]] function is multimethod with dispatch on example type. When you create your own example macro you need also create corresponding evaluation function.
+  
+  ### Rendering
+
+  Render to given format.
+
+  Call multimethod [[format-example]] with format type as a dispatch. Currently supported are:
+
+  * `:html`
+  * `:markdown` (not implemented yet)
+  * `:text` (not implemented yet)
+
+  Each formatting function is also multimethod `format-...` with dispatch on example type.
+
+  Again, if you want to write different formatter - just add corresponding multimethods."
+  
   {:categories {:helper "Helper functions"
                 :example "Example macros"}}
   (:require [zprint.core :refer [zprint-str]]
+            [clojure.test :as test]
+            [hiccup.core :refer :all]
+            [hiccup.element :refer :all]
             [clojure.string :as s])
   (:import [java.security MessageDigest]
            [java.math BigInteger]))
@@ -130,7 +156,7 @@
   * `:evaluate?` - evaluate code or not (default: `true`)
   * `:test-value` - run test if `:test-value` is not nil (default: `nil`)
 
-  Your code has an access to `md5-hash` value, which is unique for each form."
+  Your code has an access to `md5-hash` value, which is unique String for each form."
   {:style/indent :defn
    :categories #{:example}}
   ([description {:keys [evaluate? test-value]
@@ -170,8 +196,8 @@
       :example-fn ~as-fns}))
 
 (add-examples example-session
-  (example-session "Execute one by one" (+ 1 2) (def abc 123) (let [x abc] (* x x)))
-  (example "What's inside above one?" (example-session "Execute one by one" (+ 1 2) (def abc 123) (let [x abc] (* x x))))
+  (example-session "Execute one by one" (+ 1 2) (def ignore-me 123) (let [x ignore-me] (* x x)))
+  (example "What's inside above one?" (example-session "Execute one by one" (+ 1 2) (def ignore-me 123) (let [x ignore-me] (* x x))))
   (example-session "Show hashes" md5-hash (str md5-hash) (let [x md5-hash] x)))
 
 (add-examples md5
@@ -266,4 +292,123 @@
   (example-image "Image from url" "https://vignette.wikia.nocookie.net/mrmen/images/5/52/Small.gif/revision/latest"))
 
 (add-examples example-url
-  (example-url "This is URL" "https://github.com/Clojure2D/clojure2d"))
+              (example-url "This is URL" "https://github.com/Clojure2D/clojure2d"))
+
+
+;;
+
+(def ^:const ^:private ^String new-line (System/getProperty "line.separator"))
+
+(defmulti evaluate
+  "Evaluate example. Dispatch on example type.
+  
+  Returns example itself with added `:result` value.
+
+  When example contain test, execute test and store result under `:test` key. `:tested` key is set to true.
+
+  As default, evaluation returns example as a String itself."
+  :type)
+
+(defmethod evaluate :default [ex] (assoc ex :result (:example ex)))
+
+(defn- maybe-format-result
+  "Format result for some specific types."
+  [res]
+  (if (coll? res)
+    (format-form res)
+    res))
+
+(defn- eval-example-fn
+  ""
+  [{:keys [example-fn]}]
+  (when example-fn
+    (if (coll? example-fn)
+      (map #(%) example-fn)
+      (example-fn))))
+
+(defmethod evaluate :simple [{:keys [example-fn test-value] :as ex}]
+  (let [tested (and example-fn test-value)]
+    (assoc ex
+           :tested tested
+           :test (when tested
+                   (test/is (= test-value (example-fn))))
+           :result (eval-example-fn ex))))
+
+(defmethod evaluate :session [ex]
+  (assoc ex :result (eval-example-fn ex)))
+
+(defmethod evaluate :snippet [ex]
+  (assoc ex :result (eval-example-fn ex)))
+
+;; format result, double dispatch
+
+(defmulti format-html
+  "Format example to HTML. Dispatch on example type." :type)
+(defmethod format-html :default [r] [:div
+                                     [:blockquote (:doc r)]
+                                     [:pre (:result r)]])
+
+(defn- add-comment
+  ""
+  [s]
+  (->> (str s)
+       (s/split-lines)
+       (map #(str ";;=> " %))
+       (s/join new-line)))
+
+(defn- make-code-line
+  "Generate code line."
+  [example evaluated? result]
+  (str example
+       (when evaluated?
+         (str new-line (add-comment (maybe-format-result result))))))
+
+(defn- test-result
+  "Returns test result information (failed or not)."
+  [{:keys [test-value test]}]
+  (if test
+    ";; Test: ok."
+    (str ";; Test: failed, expected value: " test-value ".")))
+
+(defmethod format-html :simple [r]
+  (html [:div
+         [:blockquote (:doc r)] 
+         [:pre [:code {:class "hljs clojure"} (make-code-line (:example r) (:example-fn r) (:result r)) 
+                (when (:tested r) [:small new-line new-line (test-result r)])]]]))
+
+(defmethod format-html :snippet [r]
+  (format-html (assoc r :type (:dispatch-result r))))
+
+(defmethod format-html :session [r]
+  (html [:div
+         [:blockquote (:doc r)]
+         [:pre [:code {:class "hljs clojure"}
+                (s/join new-line (for [[ex res] (map vector (:example r) (or (:result r) (repeatedly (constantly nil))))]
+                                   (make-code-line ex (:example-fn r) res)))]]]))
+
+(defmethod format-html :image [r] (html [:div
+                                         [:blockquote (:doc r)]
+                                         (image (:result r))]))
+
+(defmethod format-html :url [r]  (html [:div
+                                        [:blockquote
+                                         (link-to (:result r) (:doc r))]]))
+
+(defmulti format-markdown
+  "Render example to Markdown. Dispatch on example type." :type)
+(defmethod format-markdown :default [r] (:result r))
+
+(defmulti format-text
+  "Render example to text. Dispatch on example type." :type)
+(defmethod format-text :default [r] (:result r))
+
+(defmulti format-example
+  "Format example. Dispatch on format type."
+  (fn [t & _] t))
+
+(defmethod format-example :html [_ result] (format-html result))
+(defmethod format-example :markdown [_ result] (format-markdown result))
+(defmethod format-example :text [_ result] (format-text result))
+(defmethod format-example :default [_ result] (:result result))
+
+;;

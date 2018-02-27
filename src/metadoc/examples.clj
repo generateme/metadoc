@@ -257,8 +257,11 @@
 
 (add-examples example-snippet
   (example-snippet "Call snippet with fn" snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v))))
+  (example "What's inside?" (example-snippet "Call snippet with fn" snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v)))))
   (example-snippet "Treat result as URL!" snippet-fn :url (fn [_] "https://github.com/generateme/metadoc"))
-  (example-snippet "Or image" snippet-fn :image (fn [_] "img.png")))
+  (example "What's inside?" (example-snippet "Treat result as URL!" snippet-fn :url (fn [_] "https://github.com/generateme/metadoc")))
+  (example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))
+  (example "What's inside?" (example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))))
 
 (defmacro example-any-val
   "Create example of any type `typ` and any value `v`. Such example will be treated just as string unless you specify evaluator (see [[metadoc.evaluate]] namespace)."
@@ -289,11 +292,12 @@
 
 (add-examples example-image
   (example-image "Insert image below." "img.png")
+  (example "Inside..." (example-image "Insert image below." "img.png"))
   (example-image "Image from url" "https://vignette.wikia.nocookie.net/mrmen/images/5/52/Small.gif/revision/latest"))
 
 (add-examples example-url
-              (example-url "This is URL" "https://github.com/Clojure2D/clojure2d"))
-
+  (example-url "This is URL" "https://github.com/Clojure2D/clojure2d")
+  (example "Inside..." (example-url "This is URL" "https://github.com/Clojure2D/clojure2d")))
 
 ;;
 

@@ -14,6 +14,7 @@
           :writer metadoc.writers.codox/write-docs}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [zprint "0.4.6"]
-                 [codox "0.10.3"]
                  [codox-theme-rdash "0.1.2"]
-                 [hiccup "1.0.5"]])
+                 [hiccup "1.0.5"]
+                 [enlive "1.1.6"]
+                 [org.pegdown/pegdown "1.6.0"]])

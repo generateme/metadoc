@@ -14,7 +14,6 @@
             [clojure.walk :as walk]
             [net.cgrand.enlive-html :as enlive-html]
             [net.cgrand.jsoup :as jsoup]
-            [codox.utils :as util]
             [metadoc.examples :as ex]
             [metadoc.reader :as er]))
 
@@ -85,11 +84,40 @@
            Extensions/EXTANCHORLINKS)
    2000))
 
+(defn- public-vars
+  "Return a list of all public var names in a collection of namespaces from one
+  of the reader functions."
+  [namespaces]
+  (for [ns  namespaces
+        var (:publics ns)
+        v   (concat [var] (:members var))]
+    (symbol (str (:name ns)) (str (:name v)))))
+
+(def ^:private re-chars (set "\\.*+|?()[]{}$^"))
+
+(defn re-escape
+  "Escape a string so it can be safely placed in a regex."
+  [s]
+  (str/escape s #(if (re-chars %) (str \\ %))))
+
+(defn- search-vars
+  "Find the best-matching var given a partial var string, a list of namespaces,
+  and an optional starting namespace."
+  [namespaces partial-var & [starting-ns]]
+  (let [regex   (if (.contains partial-var "/")
+                  (re-pattern (str (re-escape partial-var) "$"))
+                  (re-pattern (str "/" (re-escape partial-var) "$")))
+        matches (filter
+                 #(re-find regex (str %))
+                 (public-vars namespaces))]
+    (or (first (filter #(= (str starting-ns) (namespace %)) matches))
+        (first matches))))
+
 (defn- find-wikilink [project ns text]
   (let [ns-strs (map (comp str :name) (:namespaces project))]
     (if (contains? (set ns-strs) text)
       (str text ".html")
-      (if-let [var (util/search-vars (:namespaces project) text (:name ns))]
+      (if-let [var (search-vars (:namespaces project) text (:name ns))]
         (str (namespace var) ".html#" (var-id var))))))
 
 (defn- parse-wikilink [text]
@@ -160,14 +188,17 @@
 (defn- uri-basename [path]
   (second (re-find #"/([^/]+?)$" path)))
 
+(defn- uri-path [path]
+  (str/replace (str path) java.io.File/separator "/"))
+
 (defn- var-source-uri
   [{:keys [source-uri version]}
    {:keys [path file line]}]
-  (let [path (util/uri-path path)
+  (let [path (uri-path path)
         uri  (if (map? source-uri) (get-source-uri source-uri path) source-uri)]
     (-> uri
         (str/replace "{filepath}"  path)
-        (str/replace "{classpath}" (util/uri-path file))
+        (str/replace "{classpath}" (uri-path file))
         (str/replace "{basename}"  (uri-basename path))
         (str/replace "{line}"      (str line))
         (str/replace "{version}"   version))))
@@ -318,6 +349,16 @@
 (defn- strip-prefix [s prefix]
   (if s (str/replace s (re-pattern (str "(?i)^" prefix)) "")))
 
+(defn- summary
+  "Return the summary of a docstring.
+   The summary is the first portion of the string, from the first
+   character to the first page break (\f) character OR the first TWO
+   newlines."
+  [s]
+  (if s
+    (->> (str/trim s)
+         (re-find #"(?s).*?(?=\f)|.*?(?=\n\n)|.*"))))
+
 (defn- index-page [project]
   (html5
    [:head
@@ -351,7 +392,7 @@
      (for [namespace (sort-by :name (:namespaces project))]
        [:div.namespace
         [:h3 (link-to (ns-filename namespace) (h (:name namespace)))]
-        [:div.doc (format-docstring project nil (update-in namespace [:doc] util/summary))]
+        [:div.doc (format-docstring project nil (update-in namespace [:doc] summary))]
         [:div.index
          [:p "Public variables and functions:"]
          (unordered-list

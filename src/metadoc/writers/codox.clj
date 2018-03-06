@@ -524,7 +524,8 @@
                 :let [nn (or (n categories-names) (name n))]
                 :when (not (= n :other))]
             [:li nn ": " (category-line project namespace categories n)])]
-         [:p "Without category: " (category-line project namespace categories :other)]]))))
+         (when (:other categories) 
+           [:p "Without category: " (category-line project namespace categories :other)])]))))
 
 
 (defn- namespace-page [project namespace]

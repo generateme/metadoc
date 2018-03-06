@@ -122,7 +122,7 @@
   <li><code>dispatch-result</code> - treat result as result from different example type (optional, default <code>:simple</code>).</li>
   <li><code>example</code> - function passed to the snippet during evaluation.</li>
 </ul></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><p>Call snippet with fn</p></blockquote><pre><code class="hljs clojure">(snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v))) ...)
-;;=&gt; sqrt of 4 = 2.0</code></pre></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Call snippet with fn"
+;;=&gt; sqrt of 6 = 2.449489742783178</code></pre></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Call snippet with fn"
                  snippet-fn
                  (fn [v] (str "sqrt of " v " = " (Math/sqrt v))))
 ;;=&gt; {:dispatch-result :simple,

@@ -11,7 +11,8 @@
           :output-path "docs/"
           :source-uri "https://github.com/generateme/metadoc/blob/master/{filepath}#L{line}"
           :exclude-vars nil
-          :writer metadoc.writers.codox/write-docs}
+          :writer metadoc.writers.codox/write-docs
+          }
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [zprint "0.4.6"]
                  [codox-theme-rdash "0.1.2"]

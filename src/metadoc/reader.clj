@@ -36,6 +36,7 @@
   "Returns categories and all symbols for each category."
   [ns]
   (->> (metas-from-public-vars ns)
+       (remove :const)
        (reduce (fn [curr m]
                  (reduce #(update-in %1 [%2] conj (:name m))
                          curr

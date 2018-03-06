@@ -2,7 +2,7 @@
 
 Documentation tags in Clojure metadata.
 
-[Check out generated doc](https://generateme.github.io/metadoc/metadoc.example.html)
+[Check out generated doc](https://generateme.github.io/metadoc/example.example.html)
 
 ## Documentation
 

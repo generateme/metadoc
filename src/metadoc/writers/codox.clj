@@ -499,7 +499,7 @@
 (defn- snippets-part 
   [project namespace]
   (when-not (contains? project :snippets)
-    (when-let [snippets (seq (filter (comp not :hidden) (:snippets namespace)))]
+    (when-let [snippets (seq (filter (comp not :hidden) (:metadoc/snippets namespace)))]
       [:div.markdown
        [:h4 "Code snippets"]
        (for [{:keys [doc fn-str]} (vals snippets)]
@@ -516,7 +516,7 @@
   [project namespace]
   (let [categories (:categories-list namespace)]
     (when-not (empty? categories)
-      (let [categories-names (:categories namespace)]
+      (let [categories-names (:metadoc/categories namespace)]
         [:div.markdown
          [:h4 "Categories"]
          [:ul

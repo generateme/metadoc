@@ -23,7 +23,7 @@
 <h4><a href="#adding-examples" name="adding-examples"></a>Adding examples</h4>
 <p>You can add examples directly to your metadata under <code>:examples</code> tag as a list of <code>(example...)</code> macro calls.</p>
 <pre><code>(defn some-function
-  {:examples [(example "Simple" (+ 1 2 3))]}
+  {:metadoc/examples [(example "Simple" (+ 1 2 3))]}
   [])
 </code></pre>
 <p>Or call <a href="metadoc.examples.html#var-add-examples">add-examples</a> macro, pass variable name and examples.</p>
@@ -56,7 +56,7 @@
   <li><code>:text</code> (not implemented yet)</li>
 </ul>
 <p>Each formatting function is also multimethod <code>format-...</code> with dispatch on example type.</p>
-<p>Again, if you want to write different formatter - just add corresponding multimethods.</p></div><div class="markdown"><h4>Categories</h4><ul><li>Example macros: <a href="metadoc.examples.html#var-add-examples">add-examples</a> <a href="metadoc.examples.html#var-defsnippet">defsnippet</a> <a href="metadoc.examples.html#var-example">example</a> <a href="metadoc.examples.html#var-example-any-val">example-any-val</a> <a href="metadoc.examples.html#var-example-image">example-image</a> <a href="metadoc.examples.html#var-example-session">example-session</a> <a href="metadoc.examples.html#var-example-snippet">example-snippet</a> <a href="metadoc.examples.html#var-example-url">example-url</a></li><li>Helper functions: <a href="metadoc.examples.html#var-format-form">format-form</a> <a href="metadoc.examples.html#var-md5">md5</a> <a href="metadoc.examples.html#var-meta-add-to-key">meta-add-to-key</a> <a href="metadoc.examples.html#var-meta-append-to-vector">meta-append-to-vector</a></li></ul><p>Without category: <a href="metadoc.examples.html#var-*format-width*">*format-width*</a> <a href="metadoc.examples.html#var-evaluate">evaluate</a> <a href="metadoc.examples.html#var-format-example">format-example</a> <a href="metadoc.examples.html#var-format-html">format-html</a> <a href="metadoc.examples.html#var-format-markdown">format-markdown</a> <a href="metadoc.examples.html#var-format-text">format-text</a> <a href="metadoc.examples.html#var-ignore-me">ignore-me</a></p></div><div class="markdown"><h4>Constants</h4><ul><li><a href="metadoc.examples.html#var-default-format-width">default-format-width</a> = <code>72</code></li></ul></div><div class="markdown"><h4>Code snippets</h4><div><blockquote><p>Print <code>opts</code> parameter and call provided function <code>f</code> with random number. See <a href="metadoc.examples.html#var-example-snippet">example-snippet</a> for results.</p></blockquote><pre><code>(defn snippet-fn [f &amp; opts] (do (println opts) (f (rand-int 10))))</code></pre></div></div></div><div class="public anchor" id="var-*format-width*"><h3>*format-width*</h3><h4 class="dynamic">dynamic</h4><div class="usage"></div><div class="doc"><div class="markdown"><p>Set maximum width of formatted code. Default 72.</p></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L93">view source</a></div></div><div class="public anchor" id="var-add-examples"><h3>add-examples</h3><h4 class="type">macro</h4><div class="usage"><code>(add-examples v &amp; examples)</code></div><div class="doc"><div class="markdown"><p>Add list of examples to given var.</p>
+<p>Again, if you want to write different formatter - just add corresponding multimethods.</p></div><div class="markdown"><h4>Categories</h4><ul><li>example: <a href="metadoc.examples.html#var-add-examples">add-examples</a> <a href="metadoc.examples.html#var-defsnippet">defsnippet</a> <a href="metadoc.examples.html#var-example">example</a> <a href="metadoc.examples.html#var-example-any-val">example-any-val</a> <a href="metadoc.examples.html#var-example-image">example-image</a> <a href="metadoc.examples.html#var-example-session">example-session</a> <a href="metadoc.examples.html#var-example-snippet">example-snippet</a> <a href="metadoc.examples.html#var-example-url">example-url</a></li><li>helper: <a href="metadoc.examples.html#var-format-form">format-form</a> <a href="metadoc.examples.html#var-md5">md5</a> <a href="metadoc.examples.html#var-meta-add-to-key">meta-add-to-key</a> <a href="metadoc.examples.html#var-meta-append-to-vector">meta-append-to-vector</a></li></ul><p>Without category: <a href="metadoc.examples.html#var-*format-width*">*format-width*</a> <a href="metadoc.examples.html#var-evaluate">evaluate</a> <a href="metadoc.examples.html#var-format-example">format-example</a> <a href="metadoc.examples.html#var-format-html">format-html</a> <a href="metadoc.examples.html#var-format-markdown">format-markdown</a> <a href="metadoc.examples.html#var-format-text">format-text</a> <a href="metadoc.examples.html#var-ignore-me">ignore-me</a></p></div><div class="markdown"><h4>Constants</h4><ul><li><a href="metadoc.examples.html#var-default-format-width">default-format-width</a> = <code>72</code></li></ul></div><div class="markdown"><h4>Code snippets</h4><div><blockquote><p>Print <code>opts</code> parameter and call provided function <code>f</code> with random number. See <a href="metadoc.examples.html#var-example-snippet">example-snippet</a> for results.</p></blockquote><pre><code>(defn snippet-fn [f &amp; opts] (do (println opts) (f (rand-int 10))))</code></pre></div></div></div><div class="public anchor" id="var-*format-width*"><h3>*format-width*</h3><h4 class="dynamic">dynamic</h4><div class="usage"></div><div class="doc"><div class="markdown"><p>Set maximum width of formatted code. Default 72.</p></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L93">view source</a></div></div><div class="public anchor" id="var-add-examples"><h3>add-examples</h3><h4 class="type">macro</h4><div class="usage"><code>(add-examples v &amp; examples)</code></div><div class="doc"><div class="markdown"><p>Add list of examples to given var.</p>
 <p>Usage:</p>
 <pre><code>(add-examples any-var
   (example "one" form-1)
@@ -85,9 +85,9 @@
          (str "My md5 is: " md5-hash))
 ;;=&gt; {:doc "Access to md5-hash.",
 ;;=&gt;  :example "(str \"My md5 is: \" md5-hash)",
-;;=&gt;  :example-fn #<fn@4e773b8a metadoc.examples="" val7330[fn]="">,
+;;=&gt;  :example-fn #<fn@36a7586f metadoc.examples="" val7330[fn]="">,
 ;;=&gt;  :test-value "My md5 is: 036701fecdc4f17f752110ad6bec31c5",
-;;=&gt;  :type :simple}</fn@4e773b8a></code></pre></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L151">view source</a></div></div><div class="public anchor" id="var-example-any-val"><h3>example-any-val</h3><h4 class="type">macro</h4><div class="usage"><code>(example-any-val description typ v)</code></div><div class="doc"><div class="markdown"><p>Create example of any type <code>typ</code> and any value <code>v</code>. Such example will be treated just as string unless you specify evaluator (see <a href="null">metadoc.evaluate</a> namespace).</p></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><p>Type :anything, example :anything</p></blockquote><pre>anything</pre></div><div><blockquote><p>Inside…</p></blockquote><pre><code class="hljs clojure">(example-any-val "Type :anything, example :anything"
+;;=&gt;  :type :simple}</fn@36a7586f></code></pre></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L151">view source</a></div></div><div class="public anchor" id="var-example-any-val"><h3>example-any-val</h3><h4 class="type">macro</h4><div class="usage"><code>(example-any-val description typ v)</code></div><div class="doc"><div class="markdown"><p>Create example of any type <code>typ</code> and any value <code>v</code>. Such example will be treated just as string unless you specify evaluator (see <a href="null">metadoc.evaluate</a> namespace).</p></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><p>Type :anything, example :anything</p></blockquote><pre>anything</pre></div><div><blockquote><p>Inside…</p></blockquote><pre><code class="hljs clojure">(example-any-val "Type :anything, example :anything"
                  :anything
                  :anything)
 ;;=&gt; {:doc "Type :anything, example :anything",
@@ -107,10 +107,10 @@
 ;;=&gt; {:doc "Execute one by one",
 ;;=&gt;  :example ["(+ 1 2)" "(def ignore-me 123)"
 ;;=&gt;            "(let [x ignore-me] (* x x))"],
-;;=&gt;  :example-fn [#<fn@57eb2555 metadoc.examples="" val7354[fn]="">
-;;=&gt;               #<fn@490f2fad metadoc.examples="" val7354[fn]="">
-;;=&gt;               #<fn@579cfcc4 metadoc.examples="" val7354[fn]="">],
-;;=&gt;  :type :session}</fn@579cfcc4></fn@490f2fad></fn@57eb2555></code></pre></div><div><blockquote><p>Show hashes</p></blockquote><pre><code class="hljs clojure">md5-hash
+;;=&gt;  :example-fn [#<fn@30b0d5a7 metadoc.examples="" val7354[fn]="">
+;;=&gt;               #<fn@31ecb361 metadoc.examples="" val7354[fn]="">
+;;=&gt;               #<fn@4265cbed metadoc.examples="" val7354[fn]="">],
+;;=&gt;  :type :session}</fn@4265cbed></fn@31ecb361></fn@30b0d5a7></code></pre></div><div><blockquote><p>Show hashes</p></blockquote><pre><code class="hljs clojure">md5-hash
 ;;=&gt; fcd4d8007f5a1163130580e5bed242cd
 (str md5-hash)
 ;;=&gt; c0b9e43ba3f2e9eaebf35f1d6facfeb9
@@ -122,30 +122,30 @@
   <li><code>dispatch-result</code> - treat result as result from different example type (optional, default <code>:simple</code>).</li>
   <li><code>example</code> - function passed to the snippet during evaluation.</li>
 </ul></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><p>Call snippet with fn</p></blockquote><pre><code class="hljs clojure">(snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v))) ...)
-;;=&gt; sqrt of 3 = 1.7320508075688772</code></pre></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Call snippet with fn"
+;;=&gt; sqrt of 4 = 2.0</code></pre></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Call snippet with fn"
                  snippet-fn
                  (fn [v] (str "sqrt of " v " = " (Math/sqrt v))))
 ;;=&gt; {:dispatch-result :simple,
 ;;=&gt;  :doc "Call snippet with fn",
 ;;=&gt;  :example
 ;;=&gt;  "(snippet-fn (fn [v] (str \"sqrt of \" v \" = \" (Math/sqrt v))) ...)",
-;;=&gt;  :example-fn #<fn@3ed3e66d clojure.core="" artial[fn]="">,
+;;=&gt;  :example-fn #<fn@21cb5648 clojure.core="" artial[fn]="">,
 ;;=&gt;  :snippet-name "snippet-fn",
-;;=&gt;  :type :snippet}</fn@3ed3e66d></code></pre></div><div><blockquote><a href="https://github.com/generateme/metadoc"><p>Treat result as URL!</p></a></blockquote></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Treat result as URL!" snippet-fn
+;;=&gt;  :type :snippet}</fn@21cb5648></code></pre></div><div><blockquote><a href="https://github.com/generateme/metadoc"><p>Treat result as URL!</p></a></blockquote></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Treat result as URL!" snippet-fn
                  :url (fn [_] "https://github.com/generateme/metadoc"))
 ;;=&gt; {:dispatch-result :url,
 ;;=&gt;  :doc "Treat result as URL!",
 ;;=&gt;  :example
 ;;=&gt;  "(snippet-fn (fn [_] \"https://github.com/generateme/metadoc\") ...)",
-;;=&gt;  :example-fn #<fn@e9947af clojure.core="" artial[fn]="">,
+;;=&gt;  :example-fn #<fn@69fa5536 clojure.core="" artial[fn]="">,
 ;;=&gt;  :snippet-name "snippet-fn",
-;;=&gt;  :type :snippet}</fn@e9947af></code></pre></div><div><blockquote><p>Or image</p></blockquote><img src="img.png" /></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))
+;;=&gt;  :type :snippet}</fn@69fa5536></code></pre></div><div><blockquote><p>Or image</p></blockquote><img src="img.png" /></div><div><blockquote><p>What’s inside?</p></blockquote><pre><code class="hljs clojure">(example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))
 ;;=&gt; {:dispatch-result :image,
 ;;=&gt;  :doc "Or image",
 ;;=&gt;  :example "(snippet-fn (fn [_] \"img.png\") ...)",
-;;=&gt;  :example-fn #<fn@d60aa4 clojure.core="" artial[fn]="">,
+;;=&gt;  :example-fn #<fn@1ee5792a clojure.core="" artial[fn]="">,
 ;;=&gt;  :snippet-name "snippet-fn",
-;;=&gt;  :type :snippet}</fn@d60aa4></code></pre></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L236">view source</a></div></div><div class="public anchor" id="var-example-url"><h3>example-url</h3><h4 class="type">macro</h4><div class="usage"><code>(example-url description url)</code></div><div class="doc"><div class="markdown"><p>Create example as url.</p></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><a href="https://github.com/Clojure2D/clojure2d"><p>This is URL</p></a></blockquote></div><div><blockquote><p>Inside…</p></blockquote><pre><code class="hljs clojure">(example-url "This is URL" "https://github.com/Clojure2D/clojure2d")
+;;=&gt;  :type :snippet}</fn@1ee5792a></code></pre></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L236">view source</a></div></div><div class="public anchor" id="var-example-url"><h3>example-url</h3><h4 class="type">macro</h4><div class="usage"><code>(example-url description url)</code></div><div class="doc"><div class="markdown"><p>Create example as url.</p></div></div><div class="markdown"><h4>Examples</h4><div><blockquote><a href="https://github.com/Clojure2D/clojure2d"><p>This is URL</p></a></blockquote></div><div><blockquote><p>Inside…</p></blockquote><pre><code class="hljs clojure">(example-url "This is URL" "https://github.com/Clojure2D/clojure2d")
 ;;=&gt; {:doc "This is URL",
 ;;=&gt;  :example "https://github.com/Clojure2D/clojure2d",
 ;;=&gt;  :type :url}</code></pre></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L286">view source</a></div></div><div class="public anchor" id="var-format-example"><h3>format-example</h3><h4 class="type">multimethod</h4><div class="usage"></div><div class="doc"><div class="markdown"><p>Format example. Dispatch on format type.</p></div></div><div class="src-link"><a href="https://github.com/generateme/metadoc/blob/master/src/metadoc/examples.clj#L409">view source</a></div></div><div class="public anchor" id="var-format-form"><h3>format-form</h3><div class="usage"><code>(format-form f w)</code><code>(format-form f)</code></div><div class="doc"><div class="markdown"><p>Format your code with <code>zprint</code> library.</p>

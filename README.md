@@ -30,6 +30,18 @@ Additional metadata tags macros and tooling to enhance `:doc` documentation for 
 
 Includes integration with Codox (via custom writer). But is not limited to other tools.
 
+### Tags
+
+Tags used in namespace metadata:
+
+* `:metadoc/categories` - to map categories keys to names
+* `:metadoc/snippets` - to store all snippets created with `defsnippet`
+
+Tags used in var metadata:
+
+* `:metadoc/categories` - to store set of categories where var belongs to
+* `:metadoc/examples` - to store list of examples attached to var
+
 ### How does it work?
 
 #### Adding examples
@@ -38,9 +50,9 @@ See [doc](https://generateme.github.io/metadoc/metadoc.examples.html)
 
 #### Adding categorization
 
-Add `:categories` metatag to:
+Add `:metadoc/categories` metatag to:
 
-* variable - containing list/set of categories as keys. Eg. `{:categories #{:cat1 :cat2}}`
-* (optional) namespace - containing map with translation category key to name. Eg. `{:categories {:cat1 "First category" :cat2 "Second"}}`
+* variable - containing list/set of categories as keys. Eg. `{:metadoc/categories #{:cat1 :cat2}}`
+* (optional) namespace - containing map with translation category key to name. Eg. `{:metadoc/categories {:cat1 "First category" :cat2 "Second"}}`
 
 

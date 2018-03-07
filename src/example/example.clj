@@ -40,29 +40,29 @@ This is example of the snippet. "
 
 (defn sin-x-sin-y
   "Calculates `sin(x) * sin(y)`."
-  {:categories [:inc]
-   :examples [(example "Let's check result." (sin-x-sin-y 1.0 2.0))
-              (example-session "List of calls. Do not evaluate" false
-                (sin-x-sin-y 1.0 2.0)
-                (sin-x-sin-y 0.0 0.0)
-                (sin-x-sin-y pi pi))
-              (example "Do not evaluate, but test against 0.0." {:evaluate false? :test-value 0.0} (sin-x-sin-y 0.0 0.0))
-              (example-snippet "Calculate integral of `[0,pi]x[0,pi]` range." integral-snippet sin-x-sin-y)
-              (example-url "Check integral value on WolframAlpha"
-                "http://www.wolframalpha.com/input/?i=integrate+(sin(x)*sin(y))+dx+dy+x%3D0..pi+y%3D0..pi")]}
+  {:metadoc/categories [:inc]
+   :metadoc/examples [(example "Let's check result." (sin-x-sin-y 1.0 2.0))
+                      (example-session "List of calls. Do not evaluate" false
+                                       (sin-x-sin-y 1.0 2.0)
+                                       (sin-x-sin-y 0.0 0.0)
+                                       (sin-x-sin-y pi pi))
+                      (example "Do not evaluate, but test against 0.0." {:evaluate false? :test-value 0.0} (sin-x-sin-y 0.0 0.0))
+                      (example-snippet "Calculate integral of `[0,pi]x[0,pi]` range." integral-snippet sin-x-sin-y)
+                      (example-url "Check integral value on WolframAlpha"
+                                   "http://www.wolframalpha.com/input/?i=integrate+(sin(x)*sin(y))+dx+dy+x%3D0..pi+y%3D0..pi")]}
   [x y]
   (* (Math/sin x)
      (Math/sin y)))
 
 (defn cos-x-cos-y
   "Calculates `cos(x) * cos(y)`."
-  {:categories [:inc]
-   :examples [(example-session "Let's calculate some values"
-                (cos-x-cos-y 1.0 2.0)
-                (cos-x-cos-y 0.0 0.0)
-                (cos-x-cos-y pi pi))
-              (example-image "Plot of the function. Taken from WolframAlpha." "plot.gif")
-              (example-snippet "Calculate integral" integral-snippet cos-x-cos-y)]}
+  {:metadoc/categories [:inc]
+   :metadoc/examples [(example-session "Let's calculate some values"
+                                       (cos-x-cos-y 1.0 2.0)
+                                       (cos-x-cos-y 0.0 0.0)
+                                       (cos-x-cos-y pi pi))
+                      (example-image "Plot of the function. Taken from WolframAlpha." "plot.gif")
+                      (example-snippet "Calculate integral" integral-snippet cos-x-cos-y)]}
   [x y]
   (* (Math/cos x)
      (Math/cos y)))
@@ -72,7 +72,7 @@ This is example of the snippet. "
 (defn function-in-some-category
   "Returns negative value od parameter `x`.
   This is function without examples."
-  {:categories [:notinc]}
+  {:metadoc/categories [:notinc]}
   [x]
   (- x))
 
@@ -80,8 +80,8 @@ This is example of the snippet. "
 
 (defn custom-example
   "Return custom example map with `t` as example value."
-  {:categories #{:inc}
-   :examples [(example "Custom Example value" (custom-example "nothing"))]}
+  {:metadoc/categories #{:inc}
+   :metadoc/examples [(example "Custom Example value" (custom-example "nothing"))]}
   [t]
   {:type :custom
    :example t
@@ -89,17 +89,17 @@ This is example of the snippet. "
 
 (defn function-with-custom-example
   "Dummy function with custom example." 
-  {:categories #{:inc}
-   :examples [(custom-example "Here is text of the example.")]}
+  {:metadoc/categories #{:inc}
+   :metadoc/examples [(custom-example "Here is text of the example.")]}
   [])
 
 ;;
 
 (defn examples-with-tests
   "This function has examples with tests."
-  {:categories #{:inc}
-   :examples [(example "Testing against 121. Should be ok." {:test-value 121} (* 11 11))
-              (example "Also testing against 121. Should fail.." {:test-value 121} (* 11 10))]}
+  {:metadoc/categories #{:inc}
+   :metadoc/examples [(example "Testing against 121. Should be ok." {:test-value 121} (* 11 11))
+                      (example "Also testing against 121. Should fail.." {:test-value 121} (* 11 10))]}
   [])
 
 ;;
@@ -126,10 +126,10 @@ This is example of the snippet. "
 
 (defn drawing-snippet-examples
   "Draw some trig functions. Using `example-snippet` with result dispatched to `:image` type."
-  {:categories [:inc]
-   :examples [(example-snippet "SIN" draw-trig :image (fn [x] (Math/sin x)))
-              (example-snippet "COS" draw-trig :image (fn [x] (Math/cos x)))
-              (example-snippet "TAN" draw-trig :image (fn [x] (Math/tan x)))
-              (example-snippet "This function" draw-trig :image drawing-snippet-examples)]}
+  {:metadoc/categories [:inc]
+   :metadoc/examples [(example-snippet "SIN" draw-trig :image (fn [x] (Math/sin x)))
+                      (example-snippet "COS" draw-trig :image (fn [x] (Math/cos x)))
+                      (example-snippet "TAN" draw-trig :image (fn [x] (Math/tan x)))
+                      (example-snippet "This function" draw-trig :image drawing-snippet-examples)]}
   [x]
   (* (Math/sin x) (Math/cos (/ x 2.1))))

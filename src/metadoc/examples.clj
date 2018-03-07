@@ -29,7 +29,7 @@
   
   ```
   (defn some-function
-    {:examples [(example \"Simple\" (+ 1 2 3))]}
+    {:metadoc/examples [(example \"Simple\" (+ 1 2 3))]}
     [])
   ```
 
@@ -79,8 +79,8 @@
 
   Again, if you want to write different formatter - just add corresponding multimethods."
   
-  {:categories {:helper "Helper functions"
-                :example "Example macros"}}
+  {:metadoc/categories {:helper "Helper functions"
+                        :example "Example macros"}}
   (:require [zprint.core :refer [zprint-str]]
             [clojure.test :as test]
             [hiccup.core :refer :all]
@@ -96,7 +96,7 @@
   "Format your code with `zprint` library.
 
   Provide form `f` and format it for given width `w` (optional, default [[*format-width*]]."
-  {:categories #{:helper}}
+  {:metadoc/categories #{:helper}}
   ([f w]
    (zprint-str f w {:style :community}))
   ([f] (format-form f *format-width*)))
@@ -105,13 +105,13 @@
 
 (defn meta-append-to-vector 
   "For var `vr` append value(s) `v` to vector under the key `k`."
-  {:categories #{:helper}}
+  {:metadoc/categories #{:helper}}
   [vr k & v]
   (alter-meta! vr update k (fnil concat []) v))
 
 (defn meta-add-to-key
   "For var `vr` append value `v` to the map under the key `k`."
-  {:categories #{:helper}}
+  {:metadoc/categories #{:helper}}
   [vr name k v]
   (alter-meta! vr update-in [k] assoc name v))
 
@@ -121,7 +121,7 @@
 
 (defn md5
   "Return `md5` hash for given String `s`."
-  {:categories #{:helper}}
+  {:metadoc/categories #{:helper}}
   [^String s]
   (format "%032x" (BigInteger. (int 1) (.digest md5-digest (.getBytes s)))))
 
@@ -144,9 +144,9 @@
     (example-image \"image\" \"aaa.jpg\"))
   ```"
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   [v & examples]
-  `(meta-append-to-vector (var ~v) :examples ~@examples))
+  `(meta-append-to-vector (var ~v) :metadoc/examples ~@examples))
 
 (defmacro example
   "Create `:simple` example.
@@ -158,7 +158,7 @@
 
   Your code has an access to `md5-hash` value, which is unique String for each form."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   ([description {:keys [evaluate? test-value]
                  :or {evaluate? true test-value nil}} example]
    (let [as-str (format-form example)
@@ -185,7 +185,7 @@
 
   Every form has an access to its md5 hash."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   [description & examples]
   (let [[evaluate? examples] (if (first examples) [true examples] [false (next examples)])
         as-strs (mapv format-form examples)
@@ -214,15 +214,15 @@
 
   When you set `hidden?` parameter to true. Doc generation tool should skip it."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   ([name description hidden? snippet]
    (let [mname (vary-meta name assoc
                           :private true
                           :hidden hidden?)
          fun (list 'defn mname '[f & opts] snippet)
          as-str (format-form fun)]
-     (meta-add-to-key *ns* name :snippets {:doc description 
-                                           :fn-str as-str})
+     (meta-add-to-key *ns* name :metadoc/snippets {:doc description 
+                                                   :fn-str as-str})
      fun))
   ([name description snippet]
    `(defsnippet ~name ~description false ~snippet)))
@@ -242,7 +242,7 @@
   * `dispatch-result` - treat result as result from different example type (optional, default `:simple`).
   * `example` - function passed to the snippet during evaluation."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   ([description snippet-name dispatch-result example]
    (let [sname (str snippet-name)
          as-str (format-form (list snippet-name example (symbol "...")))]
@@ -266,7 +266,7 @@
 (defmacro example-any-val
   "Create example of any type `typ` and any value `v`. Such example will be treated just as string unless you specify evaluator (see [[metadoc.evaluate]] namespace)."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   [description typ v]
   `{:type ~typ
     :doc ~description
@@ -279,14 +279,14 @@
 (defmacro example-image
   "Create example as image, provide image url."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   [description image-url]
   `(example-any-val ~description :image ~image-url))
 
 (defmacro example-url
   "Create example as url."
   {:style/indent :defn
-   :categories #{:example}}
+   :metadoc/categories #{:example}}
   [description url]
   `(example-any-val ~description :url ~url))
 
@@ -327,7 +327,7 @@
   [{:keys [example-fn]}]
   (when example-fn
     (if (coll? example-fn)
-      (map #(%) example-fn)
+      (mapv #(%) example-fn)
       (example-fn))))
 
 (defmethod evaluate :simple [{:keys [example-fn test-value] :as ex}]

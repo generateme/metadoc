@@ -60,5 +60,5 @@
   (example "Add something" (* 2 3)))
 
 (deftest add-examples-test
-  (is (:examples (meta #'snippet-fn)))
-  (is (pos? (count (:examples (meta #'snippet-fn))))))
+  (is (:metadoc/examples (meta #'snippet-fn)))
+  (is (pos? (count (:metadoc/examples (meta #'snippet-fn))))))

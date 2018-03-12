@@ -318,9 +318,10 @@
 (defn- maybe-format-result
   "Format result for some specific types."
   [res]
-  (if (coll? res)
-    (format-form res)
-    res))
+  (cond
+    (coll? res) (format-form res)
+    (nil? res) "nil"
+    :else res))
 
 (defn- eval-example-fn
   ""

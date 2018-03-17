@@ -385,7 +385,12 @@
                 (when (:tested r) [:small new-line new-line (test-result r)])]]]))
 
 (defmethod format-html :snippet [r]
-  (format-html (assoc r :type (:dispatch-result r))))
+  (if (= :image (:dispatch-result r))
+    (html [:div
+           [:blockquote (:doc r)]
+           [:pre [:code {:class "hljs clojure"} (:example r)]]
+           (image (:result r))])
+    (format-html (assoc r :type (:dispatch-result r)))))
 
 (defmethod format-html :session [r]
   (html [:div

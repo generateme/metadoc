@@ -359,6 +359,27 @@
     (->> (str/trim s)
          (re-find #"(?s).*?(?=\f)|.*?(?=\n\n)|.*"))))
 
+(defn- category-line 
+  [project namespace categories n]
+  (interpose " " (for [v (sort (n categories))]
+                   [:a {:href (find-wikilink project namespace (str v))} v])))
+
+(defn- categories-part 
+  [project namespace]
+  (let [categories (:categories-list namespace)]
+    (when-not (empty? categories)
+      (let [categories-names (:metadoc/categories namespace)]
+        [:div.markdown
+         [:h4 "Categories"]
+         [:ul
+          (for [n (sort (keys categories))
+                :let [nn (or (n categories-names) (name n))]
+                :when (not (= n :other))]
+            [:li nn ": " (category-line project namespace categories n)])]
+         (when (:other categories) 
+           [:p "Other vars: " (category-line project namespace categories :other)])]))))
+
+
 (defn- index-page [project]
   (html5
    [:head
@@ -393,11 +414,7 @@
        [:div.namespace
         [:h3 (link-to (ns-filename namespace) (h (:name namespace)))]
         [:div.doc (format-docstring project nil (update-in namespace [:doc] summary))]
-        [:div.index
-         [:p "Public variables and functions:"]
-         (unordered-list
-          (for [var (sorted-public-vars namespace)]
-            (list " " (link-to (var-uri namespace var) (h (:name var))) " ")))]])]]))
+        [:div.doc (categories-part project namespace)]])]]))
 
 (defmulti format-document
   "Format a document into HTML."
@@ -506,27 +523,6 @@
          [:div
           [:blockquote (format-markdown doc project namespace)]
           [:pre [:code fn-str]]])])))
-
-(defn- category-line 
-  [project namespace categories n]
-  (interpose " " (for [v (sort (n categories))]
-                   [:a {:href (find-wikilink project namespace (str v))} v])))
-
-(defn- categories-part 
-  [project namespace]
-  (let [categories (:categories-list namespace)]
-    (when-not (empty? categories)
-      (let [categories-names (:metadoc/categories namespace)]
-        [:div.markdown
-         [:h4 "Categories"]
-         [:ul
-          (for [n (sort (keys categories))
-                :let [nn (or (n categories-names) (name n))]
-                :when (not (= n :other))]
-            [:li nn ": " (category-line project namespace categories n)])]
-         (when (:other categories) 
-           [:p "Without category: " (category-line project namespace categories :other)])]))))
-
 
 (defn- namespace-page [project namespace]
   (html5

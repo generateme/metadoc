@@ -8,8 +8,8 @@
   * Tests from examples
   * Constants
   * Categorization"
-  {:categories {:inc "With examples"
-                :notinc "Without examples"}}
+  {:metadoc/categories {:inc "With examples"
+                        :notinc "Without examples"}}
   (:require [metadoc.examples :refer :all]
             [clojure.java.io :as io])
   (:import [java.awt Color]
@@ -40,7 +40,7 @@ This is example of the snippet. "
 
 (defn sin-x-sin-y
   "Calculates `sin(x) * sin(y)`."
-  {:metadoc/categories [:inc]
+  {:metadoc/categories #{:inc}
    :metadoc/examples [(example "Let's check result." (sin-x-sin-y 1.0 2.0))
                       (example-session "List of calls. Do not evaluate" false
                                        (sin-x-sin-y 1.0 2.0)
@@ -56,7 +56,7 @@ This is example of the snippet. "
 
 (defn cos-x-cos-y
   "Calculates `cos(x) * cos(y)`."
-  {:metadoc/categories [:inc]
+  {:metadoc/categories #{:inc}
    :metadoc/examples [(example-session "Let's calculate some values"
                                        (cos-x-cos-y 1.0 2.0)
                                        (cos-x-cos-y 0.0 0.0)
@@ -72,7 +72,7 @@ This is example of the snippet. "
 (defn function-in-some-category
   "Returns negative value od parameter `x`.
   This is function without examples."
-  {:metadoc/categories [:notinc]}
+  {:metadoc/categories #{:notinc}}
   [x]
   (- x))
 

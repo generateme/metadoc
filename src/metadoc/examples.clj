@@ -79,8 +79,10 @@
 
   Again, if you want to write different formatter - just add corresponding multimethods."
   
-  {:metadoc/categories {:helper "Helper functions"
-                        :example "Example macros"}}
+  {:metadoc/categories {:meta "Metadata manipulations"
+                        :example "Example macros"
+                        :format "Format functions"
+                        :eval "Evaluation"}}
   (:require [zprint.core :refer [zprint-str]]
             [clojure.test :as test]
             [hiccup.core :refer :all]
@@ -96,7 +98,7 @@
   "Format your code with `zprint` library.
 
   Provide form `f` and format it for given width `w` (optional, default [[*format-width*]]."
-  {:metadoc/categories #{:helper}}
+  {:metadoc/categories #{:format}}
   ([f w]
    (zprint-str f w {:style :community}))
   ([f] (format-form f *format-width*)))
@@ -105,13 +107,13 @@
 
 (defn meta-append-to-vector 
   "For var `vr` append value(s) `v` to vector under the key `k`."
-  {:metadoc/categories #{:helper}}
+  {:metadoc/categories #{:meta}}
   [vr k & v]
   (alter-meta! vr update k (fnil concat []) v))
 
 (defn meta-add-to-key
   "For var `vr` append value `v` to the map under the key `k`."
-  {:metadoc/categories #{:helper}}
+  {:metadoc/categories #{:meta}}
   [vr name k v]
   (alter-meta! vr update-in [k] assoc name v))
 
@@ -121,7 +123,6 @@
 
 (defn md5
   "Return `md5` hash for given String `s`."
-  {:metadoc/categories #{:helper}}
   [^String s]
   (format "%032x" (BigInteger. (int 1) (.digest md5-digest (.getBytes s)))))
 
@@ -144,7 +145,7 @@
     (example-image \"image\" \"aaa.jpg\"))
   ```"
   {:style/indent :defn
-   :metadoc/categories #{:example}}
+   :metadoc/categories #{:example :meta}}
   [v & examples]
   `(meta-append-to-vector (var ~v) :metadoc/examples ~@examples))
 
@@ -311,6 +312,7 @@
   When example contain test, execute test and store result under `:test` key. `:tested` key is set to true.
 
   As default, evaluation returns example as a String itself."
+  {:metadoc/categories #{:eval}}
   :type)
 
 (defmethod evaluate :default [ex] (assoc ex :result (:example ex)))
@@ -318,9 +320,10 @@
 (defn- maybe-format-result
   "Format result for some specific types."
   [res]
-  (if (coll? res)
-    (format-form res)
-    res))
+  (cond
+    (coll? res) (format-form res)
+    (nil? res) "nil"
+    :else res))
 
 (defn- eval-example-fn
   ""
@@ -347,7 +350,8 @@
 ;; format result, double dispatch
 
 (defmulti format-html
-  "Format example to HTML. Dispatch on example type." :type)
+  "Format example to HTML. Dispatch on example type." {:metadoc/categories #{:format}} :type)
+
 (defmethod format-html :default [r] [:div
                                      [:blockquote (:doc r)]
                                      [:pre (:result r)]])
@@ -381,7 +385,12 @@
                 (when (:tested r) [:small new-line new-line (test-result r)])]]]))
 
 (defmethod format-html :snippet [r]
-  (format-html (assoc r :type (:dispatch-result r))))
+  (if (= :image (:dispatch-result r))
+    (html [:div
+           [:blockquote (:doc r)]
+           [:pre [:code {:class "hljs clojure"} (:example r)]]
+           (image (:result r))])
+    (format-html (assoc r :type (:dispatch-result r)))))
 
 (defmethod format-html :session [r]
   (html [:div
@@ -398,16 +407,21 @@
                                         [:blockquote
                                          (link-to (:result r) (:doc r))]]))
 
+;;
+
 (defmulti format-markdown
-  "Render example to Markdown. Dispatch on example type." :type)
+  "Render example to Markdown. Dispatch on example type." {:metadoc/categories #{:format}} :type)
 (defmethod format-markdown :default [r] (:result r))
 
+;;
+
 (defmulti format-text
-  "Render example to text. Dispatch on example type." :type)
+  "Render example to text. Dispatch on example type." {:metadoc/categories #{:format}} :type)
 (defmethod format-text :default [r] (:result r))
 
 (defmulti format-example
   "Format example. Dispatch on format type."
+  {:metadoc/categories #{:format}}
   (fn [t & _] t))
 
 (defmethod format-example :html [_ result] (format-html result))

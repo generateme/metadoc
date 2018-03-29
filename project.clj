@@ -8,8 +8,6 @@
                  [hiccup "1.0.5"]
                  [enlive "1.1.6"]
                  [org.pegdown/pegdown "1.6.0"]]
-  :deploy-repositories [["releases" {:url "https://clojars.org/repo"
-                                     :sign-releases false}]]
   :profiles {:dev {:plugins [[refactor-nrepl "2.4.0-SNAPSHOT"]
                              [cider/cider-nrepl "0.17.0-SNAPSHOT"]
                              [lein-codox "0.10.3"]]

@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.1.1]
+
+### Changed
+
+* dynamic variable removed, should work out different way to enable/disable processing
+
 ## [0.1.0]
 
 ### Added

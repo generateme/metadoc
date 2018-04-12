@@ -616,7 +616,6 @@
   (assoc project :namespaces
          (map #(let [ns (find-ns (:name %))
                      ma (partial maybe-assoc project ns)]
-                 (require [(:name %)] :reload) ;; dirty hack, reload namespace to force processing examples...
                  (as-> % n
                    (ma n :constants :constants er/extract-constants)
                    (ma n :examples :examples er/extract-examples)
@@ -626,12 +625,11 @@
 (defn write-docs
   "Take raw documentation info and turn it into formatted HTML."
   [{:keys [output-path] :as project}]
-  (binding [ex/*process-examples* true]
-    (let [project (-> project
-                      (apply-theme-transforms)
-                      (add-sections))]
-      (doto output-path
-        (copy-theme-resources project)
-        (write-index project)
-        (write-namespaces project)
-        (write-documents project)))))
+  (let [project (-> project
+                    (apply-theme-transforms)
+                    (add-sections))]
+    (doto output-path
+      (copy-theme-resources project)
+      (write-index project)
+      (write-namespaces project)
+      (write-documents project))))

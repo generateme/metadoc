@@ -488,10 +488,10 @@
      (when constant-value
        [:div [:div.markdown [:code {:class "hljs clojure"} ";;=> " (escape-value constant-value)]]])
      [:div.doc (format-docstring project namespace var)]
-     (when examples
+     (when (seq examples)
        [:div.markdown
         [:h4 "Examples"]
-        (for [ex examples]
+        (for [ex examples] 
           (ex/format-example :html (update ex :doc #(format-markdown % project namespace))))])
      (if-let [members (seq (:members var))]
        [:div.members
@@ -616,6 +616,7 @@
   (assoc project :namespaces
          (map #(let [ns (find-ns (:name %))
                      ma (partial maybe-assoc project ns)]
+                 (require [(:name %)] :reload) ;; dirty hack, reload namespace to force processing examples...
                  (as-> % n
                    (ma n :constants :constants er/extract-constants)
                    (ma n :examples :examples er/extract-examples)
@@ -625,11 +626,12 @@
 (defn write-docs
   "Take raw documentation info and turn it into formatted HTML."
   [{:keys [output-path] :as project}]
-  (let [project (-> project
-                    (apply-theme-transforms)
-                    (add-sections))]
-    (doto output-path
-      (copy-theme-resources project)
-      (write-index project)
-      (write-namespaces project)
-      (write-documents project))))
+  (binding [ex/*process-examples* true]
+    (let [project (-> project
+                      (apply-theme-transforms)
+                      (add-sections))]
+      (doto output-path
+        (copy-theme-resources project)
+        (write-index project)
+        (write-namespaces project)
+        (write-documents project)))))

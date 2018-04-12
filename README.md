@@ -12,7 +12,7 @@ Documentation tags in Clojure metadata.
 
 Add following dependency to your project
 
-`[metadoc "0.0.2"]`
+`[metadoc "0.1.0"]`
 
 To generate `codox` docs, add also latest `codox` dependency and configure it to use `metadoc` writer.
 

@@ -51,13 +51,13 @@
 
 (defn extract-examples
   "Returns all examples for each var. Examples are evaluated."
-  [ns]
+  [ns] 
   (->> (metas-from-public-vars ns :metadoc/examples)
-       (map (fn [e] [(:name e) (map evaluate (:metadoc/examples e))]))
+       (filter (comp seq :metadoc/examples))
+       (map (fn [e] [(:name e) (map evaluate (remove nil? (:metadoc/examples e)))]))
        (into {})))
 
 (defn extract-snippets
   "Returns all snippets for given namespace `ns`."
   [ns]
   (:metadoc/snippets (meta ns)))
-

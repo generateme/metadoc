@@ -51,7 +51,7 @@
   (example-snippet \"Use snippet to multiply somenting\" my-snippet *) ;;=> 2
   ```
 
-  [[defsnippet]] creates private function which accepts function (code from your example will be passed) and `opts` list which currently contains one element, `md5-hash` of example code.
+  [[defsnippet]] creates private function which accepts function (code from your example will be passed), `params` as a list and `opts` list which currently contains one element, `md5-hash` of example code.
   
   #### Details
 
@@ -200,7 +200,7 @@
    (let [mname (vary-meta name assoc
                           :private true
                           :hidden hidden?)
-         fun (list 'defn mname '[f & opts] snippet)
+         fun (list 'defn mname '[f params & opts] snippet)
          as-str (format-form fun)]
      (meta-add-to-key *ns* (str name) :metadoc/snippets {:doc description 
                                                          :fn-str as-str})
@@ -218,15 +218,16 @@
   * `example` - function passed to the snippet during evaluation."
   {:style/indent :defn
    :metadoc/categories #{:example}}
-  ([description snippet-name dispatch-result example]
+  ([description snippet-name dispatch-result example & params]
    (let [sname (str snippet-name)
+         vparams (vec params)
          as-str (format-form (list snippet-name example (symbol "...")))]
      `{:type :snippet
        :doc ~description
        :example ~as-str
        :snippet-name ~sname
        :dispatch-result ~dispatch-result
-       :example-fn (partial ~snippet-name ~example ~(md5 as-str))}))
+       :example-fn (partial ~snippet-name ~example ~vparams ~(md5 as-str))}))
   ([description snippet-name example]
    `(example-snippet ~description ~snippet-name :simple ~example)))
 

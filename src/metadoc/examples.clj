@@ -206,13 +206,12 @@
   ([name description hidden? snippet]
    (let [mname (vary-meta name assoc
                           :private true
-                          :no-doc true
                           :hidden hidden?)
          fun (list 'defn mname '[f & opts] snippet)
          as-str (format-form fun)]
-     (meta-add-to-key *ns* name :metadoc/snippets {:doc description 
-                                                   :fn-str as-str})
-     `(when *process-examples* ~fun)))
+     (meta-add-to-key *ns* (str name) :metadoc/snippets {:doc description 
+                                                         :fn-str as-str})
+     fun))
   ([name description snippet]
    `(defsnippet ~name ~description false ~snippet)))
 
@@ -404,7 +403,7 @@
                 (example "How do I look inside?" (example "Access to md5-hash." {:test-value "My md5 is: 036701fecdc4f17f752110ad6bec31c5"} (str "My md5 is: " md5-hash))))
   
   (add-examples example-session
-                (example-session "Execute one by one" (+ 1 2) (def ignore-me 123) (let [x ignore-me] (* x x)))
+                (example-session "Execute one by one" (+ 1 2) (def ^:no-doc ^:private ignore-me 123) (let [x ignore-me] (* x x)))
                 (example "What's inside above one?" (example-session "Execute one by one" (+ 1 2) (def ignore-me 123) (let [x ignore-me] (* x x))))
                 (example-session "Show hashes" md5-hash (str md5-hash) (let [x md5-hash] x)))
 

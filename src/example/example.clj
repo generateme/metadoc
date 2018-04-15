@@ -7,7 +7,9 @@
   * Examples
   * Tests from examples
   * Constants
-  * Categorization"
+  * Categorization
+
+  All examples are inline."
   {:metadoc/categories {:inc "With examples"
                         :notinc "Without examples"}}
   (:require [metadoc.examples :refer :all]

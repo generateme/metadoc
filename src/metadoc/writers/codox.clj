@@ -515,14 +515,13 @@
 
 (defn- snippets-part 
   [project namespace]
-  (when-not (contains? project :snippets)
-    (when-let [snippets (seq (filter (comp not :hidden) (:metadoc/snippets namespace)))]
-      [:div.markdown
-       [:h4 "Code snippets"]
-       (for [{:keys [doc fn-str]} (vals snippets)]
-         [:div
-          [:blockquote (format-markdown doc project namespace)]
-          [:pre [:code fn-str]]])])))
+  (when-let [snippets (seq (filter (comp not :hidden) (:snippets namespace)))]
+    [:div.markdown
+     [:h4 "Code snippets"]
+     (for [{:keys [doc fn-str]} (vals snippets)]
+       [:div
+        [:blockquote (format-markdown doc project namespace)]
+        [:pre [:code fn-str]]])]))
 
 (defn- namespace-page [project namespace]
   (html5
@@ -619,12 +618,14 @@
                  (as-> % n
                    (ma n :constants :constants er/extract-constants)
                    (ma n :examples :examples er/extract-examples)
-                   (ma n :categories :categories-list er/extract-categories)))
+                   (ma n :categories :categories-list er/extract-categories)
+                   (ma n :snippets :snippets er/extract-snippets)))
               (:namespaces project))))
 
 (defn write-docs
   "Take raw documentation info and turn it into formatted HTML."
   [{:keys [output-path] :as project}]
+  (er/load-examples)
   (let [project (-> project
                     (apply-theme-transforms)
                     (add-sections))]

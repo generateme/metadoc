@@ -6,7 +6,9 @@
   * constants
   * examples and snippets
   * categories"
-  (:require [metadoc.examples :refer :all]))
+  (:require [metadoc.examples :refer :all]
+            [clojure.tools.namespace.find :as ns]
+            [clojure.java.io :as io]))
 
 (defn extract-constants
   "Extract all constants for given namespace `ns`.
@@ -61,3 +63,24 @@
   "Returns all snippets for given namespace `ns`."
   [ns]
   (:metadoc/snippets (meta ns)))
+
+;;
+
+(defn- jar-file? [file]
+  (and (.isFile file)
+       (-> file .getName (.endsWith ".jar"))))
+
+(defn- find-namespaces [file]
+  (cond
+    (.isDirectory file) (ns/find-namespaces-in-dir file)
+    (jar-file? file)    (ns/find-namespaces-in-jarfile (java.util.jar.JarFile. file))))
+
+(defn load-examples
+  "Load examples from `example` folder.
+
+  Call before extracting samples."
+  ([] (load-examples "example"))
+  ([path]
+   (->> (io/file path)
+        (find-namespaces)
+        (run! #(require %)))))

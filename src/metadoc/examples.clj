@@ -23,7 +23,7 @@
   * `:snippet-name` - only for `:snippet` type, name of the snippet function created with [[defsnippet]] macro.
   * `:dispatch-result` - only for `:snippet` type, how to treat result of example evaluation
 
-  #### Adding examples
+  #### Adding examples - inline
 
   You can add examples directly to your metadata under `:examples` tag as a list of `(example...)` macro calls.
   
@@ -39,6 +39,10 @@
   (add-examples some-function
     (example \"Another example\" (some-function 1 2 3)))
   ```
+
+  #### Adding examples - separate namespace
+
+  You can put your examples into separate `<your-project>/example/` folder in separate namespaces. Such examples are loaded during documentation generation.
   
   #### Snippets
 
@@ -193,20 +197,25 @@
 
   Result from snippet can be treated as result of any example type (`:simple` as default).
 
-  When you set `hidden?` parameter to true. Doc generation tool should skip it."
+  When you set `hidden?` parameter to true. Doc generation tool should skip it.
+
+  When you set `ns`, documentation will attached to given `ns` (or `*ns*`). Function is defined in-place."
   {:style/indent :defn
    :metadoc/categories #{:example}}
-  ([name description hidden? snippet]
+  ([ns name description hidden? snippet]
    (let [mname (vary-meta name assoc
                           :private true
                           :hidden hidden?)
          fun (list 'defn mname '[f params & opts] snippet)
-         as-str (format-form fun)]
-     (meta-add-to-key *ns* (str name) :metadoc/snippets {:doc description 
-                                                         :fn-str as-str})
+         as-str (format-form fun)
+         which-ns (if ns (find-ns ns) *ns*)]
+     (meta-add-to-key which-ns (str name) :metadoc/snippets {:doc description 
+                                                             :fn-str as-str})
      fun))
+  ([ns name description snippet]
+   `(defsnippet ~ns ~name ~description false ~snippet))
   ([name description snippet]
-   `(defsnippet ~name ~description false ~snippet)))
+   `(defsnippet nil ~name ~description false ~snippet)))
 
 (defmacro example-snippet
   "Define function which will be passed to snippet. Convert result to any example type (default `:simple`).
@@ -383,49 +392,4 @@
 (defmethod format-example :text [_ result] (format-text result))
 (defmethod format-example :default [_ result] (:result result))
 
-;; examples
 
-(add-examples example
-              (example "Simple code." (+ 1 2))
-              (example "Do not evaluate." {:evaluate? false} (+ 3 4))
-              (example "Test!" {:test-value 100} (* 10 10))
-              (example "Access to md5-hash." {:test-value "My md5 is: 036701fecdc4f17f752110ad6bec31c5"} (str "My md5 is: " md5-hash))
-              (example "How do I look inside?" (example "Access to md5-hash." {:test-value "My md5 is: 036701fecdc4f17f752110ad6bec31c5"} (str "My md5 is: " md5-hash))))
-
-(add-examples example-session
-              (example-session "Execute one by one" (+ 1 2) (def ^:no-doc ^:private ignore-me 123) (let [x ignore-me] (* x x)))
-              (example "What's inside above one?" (example-session "Execute one by one" (+ 1 2) (def ignore-me 123) (let [x ignore-me] (* x x))))
-              (example-session "Show hashes" md5-hash (str md5-hash) (let [x md5-hash] x)))
-
-(add-examples md5
-              (example-session "md5 sum of given string"
-                               (md5 "This is test string.")
-                               (md5 "Another string...")
-                               (md5 (md5 "...and another."))))
-
-(defsnippet snippet-fn
-  "Print `opts` parameter and call provided function `f` with random number. See [[example-snippet]] for results."
-  (do
-    (println opts)
-    (f (rand-int 10))))
-
-(add-examples example-snippet
-              (example-snippet "Call snippet with fn" snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v))))
-              (example "What's inside?" (example-snippet "Call snippet with fn" snippet-fn (fn [v] (str "sqrt of " v " = " (Math/sqrt v)))))
-              (example-snippet "Treat result as URL!" snippet-fn :url (fn [_] "https://github.com/generateme/metadoc"))
-              (example "What's inside?" (example-snippet "Treat result as URL!" snippet-fn :url (fn [_] "https://github.com/generateme/metadoc")))
-              (example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))
-              (example "What's inside?" (example-snippet "Or image" snippet-fn :image (fn [_] "img.png"))))
-
-(add-examples example-any-val
-              (example-any-val "Type :anything, example :anything" :anything :anything)
-              (example "Inside..." (example-any-val "Type :anything, example :anything" :anything :anything)))
-
-(add-examples example-image
-              (example-image "Insert image below." "img.png")
-              (example "Inside..." (example-image "Insert image below." "img.png"))
-              (example-image "Image from url" "https://vignette.wikia.nocookie.net/mrmen/images/5/52/Small.gif/revision/latest"))
-
-(add-examples example-url
-              (example-url "This is URL" "https://github.com/Clojure2D/clojure2d")
-              (example "Inside..." (example-url "This is URL" "https://github.com/Clojure2D/clojure2d")))

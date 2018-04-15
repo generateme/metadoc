@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.0]
+
+### Added
+
+* Decoupling examples from code is now possible. Put your examples into `example` folder.
+* Snippets can have optional namespace symbol, to transfer documentation there.
+
 ## [0.1.2]
 
 ### Added

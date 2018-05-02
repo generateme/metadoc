@@ -161,7 +161,9 @@
   * `:evaluate?` - evaluate code or not (default: `true`)
   * `:test-value` - run test if `:test-value` is not nil (default: `nil`)
 
-  Your code has an access to `md5-hash` value, which is unique String for each form."
+  Your code has an access to `md5-hash` value, which is unique String for each form.
+
+  Default description is \"Usage\""
   {:style/indent :defn
    :metadoc/categories #{:example}}
   ([description {:keys [evaluate? test-value]
@@ -173,7 +175,8 @@
        :example ~as-str
        :test-value ~test-value
        :example-fn ~(when evaluate? (build-fn-with-hash md5-hash example))}))
-  ([description example] `(example ~description {} ~example)))
+  ([description example] `(example ~description {} ~example))
+  ([example] `(example "Usage" {} ~example)))
 
 (defmacro example-session
   "Create `:session` example as a list of code lines. Forms will be evaluated one by one.
@@ -265,7 +268,7 @@
 
 ;;
 
-(def ^:const ^:private ^String new-line (System/getProperty "line.separator"))
+(def ^{:doc "Line separator"} ^:const ^String new-line (System/getProperty "line.separator"))
 
 (defmulti evaluate
   "Evaluate example. Dispatch on example type.

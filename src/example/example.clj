@@ -23,7 +23,6 @@
 
 (def ^:const ^String some-text "This is example text")
 (def ^:const ^double ^{:doc "Just `PI` value."} pi Math/PI)
-(def ^:const ^{:doc "New line characters, should be escaped."} new-line "\r\n")
 
 ;; Let's define some snippet
 

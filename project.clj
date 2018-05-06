@@ -1,4 +1,4 @@
-(defproject metadoc "0.2.1"
+(defproject metadoc "0.2.2-SNAPSHOT"
   :description "More documentation tags in metadata"
   :url "https://github.com/generateme/metadoc"
   :license {:name "The Unlicence"

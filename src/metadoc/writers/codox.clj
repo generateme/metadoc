@@ -633,4 +633,6 @@
       (copy-theme-resources project)
       (write-index project)
       (write-namespaces project)
-      (write-documents project))))
+      (write-documents project))
+    (println "Done")
+    (shutdown-agents)))

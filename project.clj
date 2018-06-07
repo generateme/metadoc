@@ -19,5 +19,4 @@
                            :output-path "docs/"
                            :source-paths ["src"]
                            :source-uri "https://github.com/generateme/metadoc/blob/master/{filepath}#L{line}"
-                           :exclude-vars nil
                            :writer metadoc.writers.codox/write-docs}}})

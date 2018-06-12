@@ -56,6 +56,8 @@
   ```
 
   [[defsnippet]] creates private function which accepts function (code from your example will be passed), `params` as a list and `opts` list which currently contains one element, `md5-hash` of example code.
+
+  `opts` are created by framework but `params` are provided when using `example-snippet` macro.
   
   #### Details
 
@@ -233,7 +235,7 @@
   ([description snippet-name dispatch-result example & params]
    (let [sname (str snippet-name)
          vparams (vec params)
-         as-str (format-form (list snippet-name example (symbol "...")))]
+         as-str (format-form (doall (concat (list snippet-name example) params (list (symbol "...")))))]
      `{:type :snippet
        :doc ~description
        :example ~as-str

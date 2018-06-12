@@ -121,6 +121,7 @@ This is example of the snippet. "
             y (- 200 (+ 10 (* 90.0 (inc res))))] 
         (.setFrame rect x y 2.5 2.5)
         (.fill graphics rect)))
+    (when-let [txt (first params)] (.drawString graphics txt 10 185))
     (.dispose graphics)
     (ImageIO/write canvas "png" file)
     unique-name))
@@ -128,9 +129,9 @@ This is example of the snippet. "
 (defn drawing-snippet-examples
   "Draw some trig functions. Using `example-snippet` with result dispatched to `:image` type."
   {:metadoc/categories [:inc]
-   :metadoc/examples [(example-snippet "SIN" draw-trig :image (fn [x] (Math/sin x)))
-                      (example-snippet "COS" draw-trig :image (fn [x] (Math/cos x)))
-                      (example-snippet "TAN" draw-trig :image (fn [x] (Math/tan x)))
+   :metadoc/examples [(example-snippet "SIN" draw-trig :image (fn [x] (Math/sin x)) "sin")
+                      (example-snippet "COS" draw-trig :image (fn [x] (Math/cos x)) "cos")
+                      (example-snippet "TAN" draw-trig :image (fn [x] (Math/tan x)) "tan")
                       (example-snippet "This function" draw-trig :image drawing-snippet-examples)]}
   [x]
   (* (Math/sin x) (Math/cos (/ x 2.1))))

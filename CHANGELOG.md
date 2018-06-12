@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.3]
+
+### Fixed
+
+* `example-snippet` didn't take into account parameters while generating md5-sum
+
 ## [0.2.2]
 
 ### Added

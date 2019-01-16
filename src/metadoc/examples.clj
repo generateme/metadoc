@@ -180,20 +180,35 @@
   ([description example] `(example ~description {} ~example))
   ([example] `(example "Usage" {} ~example)))
 
+(defn- infer-config
+  [sess-exs]
+  (let [frst (first sess-exs)]
+    (if (and (map? frst)
+             (or (contains? frst :evaluate?)
+                 (contains? frst :test-values)))
+      [(if (contains? frst :evaluate?)
+         (:evaluate? frst) true) (:test-values frst) (next sess-exs)]
+      [true nil sess-exs])))
+
 (defmacro example-session
   "Create `:session` example as a list of code lines. Forms will be evaluated one by one.
 
-  When you pass `false` or `nil` as a second argument, code won't be evaluated.
+  When you pass map containing one of the following keys, first example is treated as configuration.
+
+  * `:evaluate?` - evaluate code or not (default: `true`)
+  * `:test-values` - expected result for each of the provided functions. Run tests when not nil. 
 
   Every form has an access to its md5 hash."
   {:style/indent :defn
    :metadoc/categories #{:example}} 
   [description & examples]
-  (let [[evaluate? examples] (if (first examples) [true examples] [false (next examples)])
+  (let [frst (first examples)
+        [evaluate? test-values examples] (infer-config examples)
         as-strs (mapv format-form examples)] 
     `{:type :session
       :doc ~description 
       :example ~as-strs
+      :test-values ~test-values
       :example-fn ~(when evaluate? (mapv #(build-fn-with-hash (md5 %1) %2) as-strs examples))}))
 
 (defmacro defsnippet
@@ -298,7 +313,7 @@
   [{:keys [example-fn]}]
   (when example-fn
     (if (coll? example-fn)
-      (mapv #(%) example-fn)
+      (map #(%) example-fn)
       (example-fn))))
 
 (defmethod evaluate :simple [{:keys [example-fn test-value] :as ex}]
@@ -309,8 +324,13 @@
                    (test/is (= test-value (example-fn))))
            :result (eval-example-fn ex))))
 
-(defmethod evaluate :session [ex]
-  (assoc ex :result (eval-example-fn ex)))
+(defmethod evaluate :session [{:keys [example-fn test-values] :as ex}]
+  (let [tested (and example-fn test-values)]
+    (assoc ex
+           :result (eval-example-fn ex)
+           :tested tested
+           :test (when tested
+                   (mapv (fn [[f v]] (test/is (= v (f)))) (map vector example-fn test-values))))))
 
 (defmethod evaluate :snippet [ex]
   (assoc ex :result (eval-example-fn ex)))
@@ -341,10 +361,12 @@
 
 (defn- test-result
   "Returns test result information (failed or not)."
-  [{:keys [test-value test]}]
-  (if test
-    ";; Test: ok."
-    (str ";; Test: failed, expected value: " test-value ".")))
+  [{:keys [test-value test-values test]}]
+  (let [s? (seqable? test)
+        tv (if s? test-values test-value)]
+    (if (or (and s? (every? identity test)) (and (not s?) test))
+      ";; Test: ok."
+      (str ";; Test: failed, expected value(s): " tv "."))))
 
 (defmethod format-html :simple [r]
   (html [:div
@@ -365,7 +387,8 @@
          [:blockquote (:doc r)]
          [:pre [:code {:class "hljs clojure"}
                 (s/join new-line (for [[ex res] (map vector (:example r) (or (:result r) (repeatedly (constantly nil))))]
-                                   (make-code-line ex (:example-fn r) res)))]]]))
+                                   (make-code-line ex (:example-fn r) res)))
+                (when (:tested r) [:small new-line new-line (test-result r)])]]]))
 
 (defmethod format-html :image [r] (html [:div
                                          [:blockquote (:doc r)]

@@ -25,14 +25,21 @@
 
 (deftest example-session-test
   (let [ex (example-session "Session" (+ 1 2) (+ 3 4) (let [x 11] (* x x)))
-        exe (evaluate ex)]
+        ex-test (example-session "Session with test values" {:test-values [3 7 121]} (+ 1 2) (+ 3 4) (let [x 11] (* x x)))
+        ex-noeval (example-session "Session with test values" {:evaluate? false} (+ 1 2) (+ 3 4) (let [x 11] (* x x)))
+        exe (evaluate ex)
+        exe-test (evaluate ex-test)
+        exe-noeval (evaluate ex-noeval)]
     (is (= :session (:type ex)))
     (is (= 3 (count (:example-fn ex))))
     (is (= 3 (count (:example ex))))
     (is (= 3 ((first (:example-fn ex)))))
     (is (= 7 ((second (:example-fn ex)))))
     (is (= 121 (((:example-fn ex) 2))))
-    (is (= [3 7 121] (:result exe)))))
+    (is (= [3 7 121] (:result exe)))
+    (is (:test exe-test))
+    (is (= [3 7 121] (:test-values exe-test)))
+    (is (nil? (:result exe-noeval)))))
 
 (defsnippet snippet-fn
   "Description"

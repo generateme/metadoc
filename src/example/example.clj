@@ -59,15 +59,15 @@ This is example of the snippet. "
   "Calculates `cos(x) * cos(y)`."
   {:metadoc/categories #{:inc}
    :metadoc/examples [(example-session "Let's calculate some values"
-                                       (cos-x-cos-y 1.0 2.0)
-                                       (cos-x-cos-y 0.0 0.0)
-                                       (cos-x-cos-y pi pi))
+                        {:test-values [-0.2248450953661529 1.0 1.0]}
+                        (cos-x-cos-y 1.0 2.0)
+                        (cos-x-cos-y 0.0 0.0)
+                        (cos-x-cos-y pi pi))
                       (example-image "Plot of the function. Taken from WolframAlpha." "plot.gif")
                       (example-snippet "Calculate integral" integral-snippet cos-x-cos-y)]}
   [x y]
   (* (Math/cos x)
      (Math/cos y)))
-
 ;;
 
 (defn function-in-some-category
@@ -100,7 +100,9 @@ This is example of the snippet. "
   "This function has examples with tests."
   {:metadoc/categories #{:inc}
    :metadoc/examples [(example "Testing against 121. Should be ok." {:test-value 121} (* 11 11))
-                      (example "Also testing against 121. Should fail.." {:test-value 121} (* 11 10))]}
+                      (example "Also testing against 121. Should fail." {:test-value 121} (* 11 10))
+                      (example-session "Testing session with test. Should pass." {:test-values [121 122]} (* 11 11) (inc (* 11 11)))
+                      (example-session "Testing session with test. Should fail." {:test-values [121 122]} (* 11 10) (inc (* 11 11)))]}
   [])
 
 ;;

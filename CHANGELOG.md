@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.4]
+
+### Added
+
+* `example-sesssion` can accept list of values to test against
+
+### Changed
+
+* Updated dependencies
+
 ## [0.2.3]
 
 ### Fixed

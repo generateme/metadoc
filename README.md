@@ -12,7 +12,7 @@ Documentation tags in Clojure metadata.
 
 Add following dependency to your project
 
-`[metadoc "0.2.3"]`
+`[metadoc "0.2.5"]`
 
 To enable loading separate namespaces with examples from `example` folder add this folder to classpath (possible in `:dev` profile).
 

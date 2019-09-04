@@ -62,7 +62,7 @@
 
 (defmulti format-docstring
   "Format the docstring of a var or namespace into HTML."
-  (fn [project ns var] (:doc/format var))
+  (fn [_ _ var] (:doc/format var))
   :default :plaintext)
 
 (defmethod format-docstring :plaintext [_ _ metadata]
@@ -252,7 +252,7 @@
        [:span.top {:style (str "height: " height "px;")}]
        [:span.bottom]])))
 
-(defn- index-link [project on-index?]
+(defn- index-link [_ on-index?]
   (list
    [:h3.no-link [:span.inner "Project"]]
    [:ul.index-link
@@ -418,7 +418,7 @@
 
 (defmulti format-document
   "Format a document into HTML."
-  (fn [project doc] (:format doc)))
+  (fn [_ doc] (:format doc)))
 
 (defmethod format-document :markdown [project doc]
   [:div.markdown (.markdownToHtml pegdown (:content doc) (link-renderer project))])

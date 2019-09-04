@@ -202,8 +202,7 @@
   {:style/indent :defn
    :metadoc/categories #{:example}} 
   [description & examples]
-  (let [frst (first examples)
-        [evaluate? test-values examples] (infer-config examples)
+  (let [[evaluate? test-values examples] (infer-config examples)
         as-strs (mapv format-form examples)] 
     `{:type :session
       :doc ~description 
@@ -419,5 +418,4 @@
 (defmethod format-example :markdown [_ result] (format-markdown result))
 (defmethod format-example :text [_ result] (format-text result))
 (defmethod format-example :default [_ result] (:result result))
-
 

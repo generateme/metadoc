@@ -76,10 +76,10 @@
     (jar-file? file)    (ns/find-namespaces-in-jarfile (java.util.jar.JarFile. file))))
 
 (defn load-examples
-  "Load examples from `example` folder.
+  "Load examples from `metadoc` folder.
 
   Call before extracting samples."
-  ([] (load-examples "example"))
+  ([] (load-examples "metadoc"))
   ([path]
    (->> (io/file path)
         (find-namespaces)

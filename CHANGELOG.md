@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.7]
+
+### Changed
+
+Warning: breaking! Scripts with examples should be put in `metadoc` folder now.
+
 ## [0.2.6]
 
 Deps bump

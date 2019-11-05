@@ -12,12 +12,12 @@ Documentation tags in Clojure metadata.
 
 Add following dependency to your project
 
-`[metadoc "0.2.6"]`
+`[metadoc "0.2.7"]`
 
-To enable loading separate namespaces with examples from `example` folder add this folder to classpath (possible in `:dev` profile).
+To enable loading separate namespaces with examples from `metadoc` folder add this folder to classpath (possible in `:dev` profile).
 
 ```
-:source-paths ["example"]
+:source-paths ["metadoc"]
 ```
 
 To generate `codox` docs, add also latest `codox` dependency and configure it to use `metadoc` writer.

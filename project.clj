@@ -10,6 +10,5 @@
                  [com.vladsch.flexmark/flexmark "0.62.2"]
                  [com.vladsch.flexmark/flexmark-profile-pegdown "0.62.2"]
                  [com.vladsch.flexmark/flexmark-util-misc"0.62.2"]
-                 ;; [org.pegdown/pegdown "1.6.0"]
                  [org.clojure/tools.namespace "1.2.0"]]
   :profiles {:dev-codox {:codox {:source-uri "https://github.com/generateme/metadoc/blob/master/{filepath}#L{line}"}}})

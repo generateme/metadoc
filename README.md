@@ -12,7 +12,7 @@ Documentation tags in Clojure metadata.
 
 Add following dependency to your project
 
-`[metadoc "0.2.7"]`
+`[metadoc "0.2.9"]`
 
 To enable loading separate namespaces with examples from `metadoc` folder add this folder to classpath (possible in `:dev` profile).
 
@@ -26,6 +26,10 @@ To generate `codox` docs, add also latest `codox` dependency and configure it to
 :codox {:writer metadoc.writers.codox/write-docs
         :source-paths ["src"}
 ```
+
+## Codox
+
+Please use Codox v. 0.10.8+ (Pegdown replaced by Flexmark)
 
 ## What is that?
 

@@ -2,11 +2,16 @@
   "Documentation writer that outputs HTML."
   (:use [hiccup core page element util])
   (:import [java.net URLEncoder]
-           [java.io File]
-           [org.pegdown
-            PegDownProcessor Extensions FastEncoder
-            LinkRenderer LinkRenderer$Rendering]
-           [org.pegdown.ast ExpLinkNode RefLinkNode WikiLinkNode])
+           [com.vladsch.flexmark.ast Link LinkRef]
+           [com.vladsch.flexmark.ext.wikilink WikiLink WikiLinkExtension]
+           [com.vladsch.flexmark.html HtmlRenderer
+            HtmlRenderer$HtmlRendererExtension LinkResolver LinkResolverFactory]
+           [com.vladsch.flexmark.html.renderer LinkResolverBasicContext
+            LinkStatus ResolvedLink]
+           [com.vladsch.flexmark.parser Parser]
+           [com.vladsch.flexmark.profile.pegdown Extensions
+            PegdownOptionsAdapter]
+           [com.vladsch.flexmark.util.misc Extension])
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :as pp]
@@ -18,8 +23,8 @@
             [metadoc.reader :as er]))
 
 (def ^:private escape-map {(char 0xffff) "\\0xffff"
-                           (char 13) "\\r"
-                           (char 10) "\\n"})
+                         (char 13) "\\r"
+                         (char 10) "\\n"})
 
 (def enlive-operations
   {:append     enlive-html/append
@@ -41,7 +46,7 @@
 (defn- enlive-emit [nodes]
   (apply str (enlive-html/emit* nodes)))
 
-(defn- enlive-parse [s]
+(defn- enlive-parse [^String s]
   (let [stream (io/input-stream (.getBytes s "UTF-8"))]
     (enlive-html/html-resource stream {:parser jsoup/parser})))
 
@@ -57,7 +62,7 @@
   #"((https?|ftp|file)://[-A-Za-z0-9+()&@#/%?=~_|!:,.;]+[-A-Za-z0-9+()&@#/%=~_|])")
 
 (defn- add-anchors [text]
-  (if text
+  (when text
     (str/replace text url-regex "<a href=\"$1\">$1</a>")))
 
 (defmulti format-docstring
@@ -68,21 +73,21 @@
 (defmethod format-docstring :plaintext [_ _ metadata]
   [:pre.plaintext (add-anchors (h (:doc metadata)))])
 
-(def ^:private pegdown
-  (PegDownProcessor.
-   (bit-or Extensions/AUTOLINKS
-           Extensions/QUOTES
-           Extensions/SMARTS
-           Extensions/STRIKETHROUGH
-           Extensions/TABLES
-           Extensions/FENCED_CODE_BLOCKS
-           Extensions/WIKILINKS
-           Extensions/DEFINITIONS
-           Extensions/ABBREVIATIONS
-           Extensions/ATXHEADERSPACE
-           Extensions/RELAXEDHRULES
-           Extensions/EXTANCHORLINKS)
-   2000))
+#_(def ^:private pegdown
+    (PegDownProcessor.
+     (bit-or Extensions/AUTOLINKS
+             Extensions/QUOTES
+             Extensions/SMARTS
+             Extensions/STRIKETHROUGH
+             Extensions/TABLES
+             Extensions/FENCED_CODE_BLOCKS
+             Extensions/WIKILINKS
+             Extensions/DEFINITIONS
+             Extensions/ABBREVIATIONS
+             Extensions/ATXHEADERSPACE
+             Extensions/RELAXEDHRULES
+             Extensions/EXTANCHORLINKS)
+     2000))
 
 (defn- public-vars
   "Return a list of all public var names in a collection of namespaces from one
@@ -98,13 +103,13 @@
 (defn re-escape
   "Escape a string so it can be safely placed in a regex."
   [s]
-  (str/escape s #(if (re-chars %) (str \\ %))))
+  (str/escape s #(when (re-chars %) (str \\ %))))
 
 (defn- search-vars
   "Find the best-matching var given a partial var string, a list of namespaces,
   and an optional starting namespace."
   [namespaces partial-var & [starting-ns]]
-  (let [regex   (if (.contains partial-var "/")
+  (let [regex   (if (.contains ^String partial-var "/")
                   (re-pattern (str (re-escape partial-var) "$"))
                   (re-pattern (str "/" (re-escape partial-var) "$")))
         matches (filter
@@ -113,18 +118,18 @@
     (or (first (filter #(= (str starting-ns) (namespace %)) matches))
         (first matches))))
 
-(defn- find-wikilink [project ns text]
+(defn- find-wiki-link [project ns text]
   (let [ns-strs (map (comp str :name) (:namespaces project))]
     (if (contains? (set ns-strs) text)
       (str text ".html")
-      (if-let [var (search-vars (:namespaces project) text (:name ns))]
+      (when-let [var (search-vars (:namespaces project) text (:name ns))]
         (str (namespace var) ".html#" (var-id var))))))
 
-(defn- parse-wikilink [text]
-  (let [pos (.indexOf text "|")]
-    (if (>= pos 0)
-      [(subs text 0 pos) (subs text (inc pos))]
-      [text text])))
+#_(defn- parse-wikilink [text]
+    (let [pos (.indexOf text "|")]
+      (if (>= pos 0)
+        [(subs text 0 pos) (subs text (inc pos))]
+        [text text])))
 
 (defn- absolute-url? [url]
   (re-find #"^([a-z]+:)?//" url))
@@ -134,37 +139,95 @@
     (str/replace url #"\.(md|markdown)$" ".html")
     url))
 
-(defn- encode-title [rendering title]
-  (if (str/blank? title)
-    rendering
-    (.withAttribute rendering "title" (FastEncoder/encode title))))
+#_(defn- encode-title [rendering title]
+    (if (str/blank? title)
+      rendering
+      (.withAttribute rendering "title" (FastEncoder/encode title))))
 
-(defn- link-renderer [project & [ns]]
-  (proxy [LinkRenderer] []
-    (render
-      ([node]
-       (if (instance? WikiLinkNode node)
-         (let [[page text] (parse-wikilink (.getText node))]
-           (LinkRenderer$Rendering. (find-wikilink project ns page) text))
-         (proxy-super render node)))
-      ([node text]
-       (if (instance? ExpLinkNode node)
-         (-> (LinkRenderer$Rendering. (fix-markdown-url (.url node)) text)
-             (encode-title (.title node)))
-         (proxy-super render node text)))
-      ([node url title text]
-       (if (instance? RefLinkNode node)
-         (-> (LinkRenderer$Rendering. (fix-markdown-url url) text)
-             (encode-title title))
-         (proxy-super render node url title text))))))
+#_(defn- link-renderer [project & [ns]]
+    (proxy [LinkRenderer] []
+      (render
+        ([node]
+         (if (instance? WikiLinkNode node)
+           (let [[page text] (parse-wikilink (.getText node))]
+             (LinkRenderer$Rendering. (find-wikilink project ns page) text))
+           (proxy-super render node)))
+        ([node text]
+         (if (instance? ExpLinkNode node)
+           (-> (LinkRenderer$Rendering. (fix-markdown-url (.url node)) text)
+               (encode-title (.title node)))
+           (proxy-super render node text)))
+        ([node url title text]
+         (if (instance? RefLinkNode node)
+           (-> (LinkRenderer$Rendering. (fix-markdown-url url) text)
+               (encode-title title))
+           (proxy-super render node url title text))))))
+
+(defn- update-link-url [^ResolvedLink link f]
+  (-> link
+      (.withStatus LinkStatus/VALID)
+      (.withUrl (f (.getUrl link)))))
+
+(defn- correct-internal-links [node link project ns]
+  (condp instance? node
+    WikiLink (update-link-url link #(find-wiki-link project ns %))
+    LinkRef  (update-link-url link fix-markdown-url)
+    Link     (update-link-url link fix-markdown-url)
+    link))
+
+(defn- make-renderer-extension
+  [project ns]
+  (reify HtmlRenderer$HtmlRendererExtension
+    (rendererOptions [_ _])
+    (extend [_ htmlRendererBuilder _]
+      (.linkResolverFactory
+       htmlRendererBuilder
+       (reify LinkResolverFactory
+         (getAfterDependents [_] nil)
+         (getBeforeDependents [_] nil)
+         (affectsGlobalScope [_] false)
+         (^LinkResolver apply [_ ^LinkResolverBasicContext _]
+          (reify LinkResolver
+            (resolveLink [_ node _ link]
+              (correct-internal-links node link project ns)))))))))
+
+(defn- make-flexmark-options
+  [project ns]
+  (-> (PegdownOptionsAdapter/flexmarkOptions
+       (bit-or Extensions/AUTOLINKS
+               Extensions/QUOTES
+               Extensions/SMARTS
+               Extensions/STRIKETHROUGH
+               Extensions/TABLES
+               Extensions/FENCED_CODE_BLOCKS
+               Extensions/WIKILINKS
+               Extensions/DEFINITIONS
+               Extensions/ABBREVIATIONS
+               Extensions/ATXHEADERSPACE
+               Extensions/RELAXEDHRULES
+               Extensions/EXTANCHORLINKS)
+       (into-array Extension [(make-renderer-extension project ns)]))
+      (.toMutable)
+      (.set WikiLinkExtension/LINK_FIRST_SYNTAX true)
+      (.toImmutable)))
+
+(defn- markdown-to-html
+  ([doc project]
+   (markdown-to-html doc project nil))
+  ([doc project ns]
+   (let [options  (make-flexmark-options project ns)
+         parser   (.build (Parser/builder options))
+         renderer (.build (HtmlRenderer/builder options))]
+     (->> doc (.parse parser) (.render renderer)))))
 
 (defn- format-markdown 
   [doc project ns]
-  (.markdownToHtml pegdown doc (link-renderer project ns)))
+  #_(.markdownToHtml pegdown doc (link-renderer project ns))
+  (markdown-to-html doc project ns))
 
 (defmethod format-docstring :markdown [project ns metadata]
   [:div.markdown
-   (if-let [doc (:doc metadata)]
+   (when-let [doc (:doc metadata)]
      (format-markdown doc project ns))])
 
 (defn- ns-filename [namespace]
@@ -183,7 +246,7 @@
   (str (ns-filename namespace) "#" (var-id (:name var))))
 
 (defn- get-source-uri [source-uris path]
-  (some (fn [[re f]] (if (re-find re path) f)) source-uris))
+  (some (fn [[re f]] (when (re-find re path) f)) source-uris))
 
 (defn- uri-basename [path]
   (second (re-find #"/([^/]+?)$" path)))
@@ -256,11 +319,11 @@
   (list
    [:h3.no-link [:span.inner "Project"]]
    [:ul.index-link
-    [:li.depth-1 {:class (if on-index? "current")}
+    [:li.depth-1 {:class (when on-index? "current")}
      (link-to "index.html" [:div.inner "Index"])]]))
 
 (defn- topics-menu [project current-doc]
-  (if-let [docs (seq (:documents project))]
+  (when-let [docs (seq (:documents project))]
     (list
      [:h3.no-link [:span.inner "Topics"]]
      [:ul
@@ -273,11 +336,11 @@
   (let [ns-map (index-by :name namespaces)]
     [:ul
      (for [[name depth height branch?] (namespace-hierarchy namespaces)]
-       (let [class  (str "depth-" depth (if branch? " branch"))
+       (let [class  (str "depth-" depth (when branch? " branch"))
              short  (last (split-ns name))
              inner  [:div.inner (ns-tree-part height) [:span (h short)]]]
          (if-let [ns (ns-map name)]
-           (let [class (str class (if (= ns current-ns) " current"))]
+           (let [class (str class (when (= ns current-ns) " current"))]
              [:li {:class class} (link-to (ns-filename ns) inner)])
            [:li {:class class} [:div.no-link inner]])))]))
 
@@ -285,7 +348,7 @@
   [:ul
    (for [ns (sort-by :name namespaces)]
      [:li.depth-1
-      {:class (if (= ns current-ns) "current")}
+      {:class (when (= ns current-ns) "current")}
       (link-to (ns-filename ns) [:div.inner [:span (h (:name ns))]])])])
 
 (defn- namespace-list-type [project]
@@ -338,7 +401,7 @@
    [:h1 (link-to "index.html" (project-title project))]])
 
 (defn- package [project]
-  (if-let [p (:package project)]
+  (when-let [p (:package project)]
     (if (= (namespace p) (name p))
       (symbol (name p))
       p)))
@@ -347,7 +410,7 @@
   (if (.endsWith s ending) s (str s ending)))
 
 (defn- strip-prefix [s prefix]
-  (if s (str/replace s (re-pattern (str "(?i)^" prefix)) "")))
+  (when s (str/replace s (re-pattern (str "(?i)^" prefix)) "")))
 
 (defn- summary
   "Return the summary of a docstring.
@@ -355,14 +418,14 @@
    character to the first page break (\f) character OR the first TWO
    newlines."
   [s]
-  (if s
+  (when s
     (->> (str/trim s)
          (re-find #"(?s).*?(?=\f)|.*?(?=\n\n)|.*"))))
 
 (defn- category-line 
   [project namespace categories n]
   (interpose " " (for [v (sort (n categories))]
-                   [:a {:href (find-wikilink project namespace (str v))} v])))
+                   [:a {:href (find-wiki-link project namespace (str v))} v])))
 
 (defn- categories-part 
   [project namespace]
@@ -390,20 +453,20 @@
     (primary-sidebar project)
     [:div#content.namespace-index
      [:h1 (project-title project)]
-     (if-let [license (-> (get-in project [:license :name]) (strip-prefix "the "))]
+     (when-let [license (-> (get-in project [:license :name]) (strip-prefix "the "))]
        [:h5.license
         "Released under the "
         (if-let [url (get-in project [:license :url])]
           (link-to url license)
           license)])
-     (if-let [description (:description project)]
+     (when-let [description (:description project)]
        [:div.doc [:p (h (add-ending description "."))]])
-     (if-let [package (package project)]
+     (when-let [package (package project)]
        (list
         [:h2 "Installation"]
         [:p "To install, add the following dependency to your project or build file:"]
         [:pre.deps (h (str "[" package " " (pr-str (:version project)) "]"))]))
-     (if-let [docs (seq (:documents project))]
+     (when-let [docs (seq (:documents project))]
        (list
         [:h2 "Topics"]
         [:ul.topics
@@ -421,7 +484,8 @@
   (fn [_ doc] (:format doc)))
 
 (defmethod format-document :markdown [project doc]
-  [:div.markdown (.markdownToHtml pegdown (:content doc) (link-renderer project))])
+  #_[:div.markdown (.markdownToHtml pegdown (:content doc) (link-renderer project))]
+  [:div.markdown (markdown-to-html (:content doc) project)])
 
 (defn- document-page [project doc]
   (html5
@@ -440,10 +504,10 @@
 
 (defn- added-and-deprecated-docs [var]
   (list
-   (if-let [added (:added var)]
+   (when-let [added (:added var)]
      [:h4.added "added in " added])
-   (if-let [deprecated (:deprecated var)]
-     [:h4.deprecated "deprecated" (if (string? deprecated) (str " in " deprecated))])))
+   (when-let [deprecated (:deprecated var)]
+     [:h4.deprecated "deprecated" (when (string? deprecated) (str " in " deprecated))])))
 
 (defn- remove-namespaces [x namespaces]
   (if (and (symbol? x) (contains? namespaces (namespace x)))
@@ -472,14 +536,14 @@
         examples ((:name var) (:examples namespace))]
     [:div.public.anchor {:id (h (var-id (:name var)))}
      [:h3 (h (:name var))]
-     (if-not (= (:type var) :var)
+     (when-not (= (:type var) :var)
        [:h4.type (name (:type var))])
      (when constant-value
        [:h4.dynamic "const"]) 
-     (if (:dynamic var)
+     (when (:dynamic var)
        [:h4.dynamic "dynamic"])
      (added-and-deprecated-docs var)
-     (if (:type-sig var)
+     (when (:type-sig var)
        [:div.type-sig
         [:pre (h (type-sig namespace var))]])
      [:div.usage
@@ -493,13 +557,13 @@
         [:h4 "Examples"]
         (for [ex examples] 
           (ex/format-example :html (update ex :doc #(format-markdown % project namespace))))])
-     (if-let [members (seq (:members var))]
+     (when-let [members (seq (:members var))]
        [:div.members
         [:h4 "members"]
         [:div.inner
          (let [project (dissoc project :source-uri)]
            (map (partial var-docs project namespace) members))]])
-     (if (:source-uri project)
+     (when (:source-uri project)
        (if (:path var)
          [:div.src-link (link-to (var-source-uri project var) "view source")]
          (println "Could not generate source link for" (:name var))))]))
@@ -511,7 +575,7 @@
      [:h4 "Constants"]
      [:ul
       (for [[n v] (sort (:constants namespace))]
-        [:li [:a {:href (find-wikilink project namespace (str n))} n] " = " [:code (escape-value v)]])]]))
+        [:li [:a {:href (find-wiki-link project namespace (str n))} n] " = " [:code (escape-value v)]])]]))
 
 (defn- snippets-part 
   [project namespace]
@@ -543,9 +607,9 @@
      (for [var (sorted-public-vars namespace)]
        (var-docs project namespace var))]]))
 
-(defn- mkdirs [output-dir & dirs]
-  (doseq [dir dirs]
-    (.mkdirs (io/file output-dir dir))))
+#_(defn- mkdirs [output-dir & dirs]
+    (doseq [dir dirs]
+      (.mkdirs (io/file output-dir dir))))
 
 (defn- write-index [output-dir project]
   (spit (io/file output-dir "index.html") (transform-html project (index-page project))))

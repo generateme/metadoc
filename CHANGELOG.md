@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.9]
+
+Pegdown replaced by Flexmark, works with `codox` 0.10.8+
+
 ## [0.2.8]
 
 Deps bump

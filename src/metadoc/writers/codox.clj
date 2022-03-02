@@ -698,5 +698,5 @@
       (write-index project)
       (write-namespaces project)
       (write-documents project))
-    (println "Done")
-    (shutdown-agents)))
+    (println "Done")))
+

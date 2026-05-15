@@ -264,7 +264,7 @@
         (str/replace "{classpath}" (uri-path file))
         (str/replace "{basename}"  (uri-basename path))
         (str/replace "{line}"      (str line))
-        (str/replace "{version}"   version))))
+        (str/replace "{version}"   (or version "")))))
 
 (defn- split-ns [namespace]
   (str/split (str namespace) #"\."))

@@ -42,7 +42,7 @@
 
   #### Adding examples - separate namespace
 
-  You can put your examples into separate `<your-project>/example/` folder in separate namespaces. Such examples are loaded during documentation generation.
+  You can put your examples into separate `<your-project>/metadoc/` folder in separate namespaces. Such examples are loaded during documentation generation.
   
   #### Snippets
 
